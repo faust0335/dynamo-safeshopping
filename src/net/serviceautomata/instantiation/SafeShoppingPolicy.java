@@ -15,7 +15,7 @@ public class SafeShoppingPolicy extends LocalPolicy{
 	 */
 	private HashMap <String[], String> transactionMap =
 			new HashMap <String[], String> ();
-	
+
 	/*
 	 * Construct a local policy object.
 	 * @param identifier The identifier of the unit using the local policy
