@@ -5,3 +5,5 @@ SafeShopping.jar
 .project
 log/
 bin/
+admin/stats/*.png
+admin/stats/*.rrd
