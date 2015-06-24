@@ -3,6 +3,10 @@ package net.serviceautomata.instantiation;
 import net.serviceautomata.javacor.CriticalEvent;
 
 public class SafeShoppingEvent implements CriticalEvent{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6367746522189849621L;
 	//token in the check out HTTP message is the critical event
 	private String sessionID;
 	private String token;

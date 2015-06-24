@@ -4,7 +4,6 @@ import java.io.File;
 
 import net.serviceautomata.javacor.CriticalEvent;
 import net.serviceautomata.javacor.DelegationReqResp;
-import net.serviceautomata.javacor.EnforcementDecision;
 import net.serviceautomata.javacor.LocalPolicy;
 import net.serviceautomata.javacor.LocalPolicyResponse;
 import java.util.HashMap;
