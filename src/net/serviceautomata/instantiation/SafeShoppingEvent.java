@@ -3,18 +3,16 @@ package net.serviceautomata.instantiation;
 import net.serviceautomata.javacor.CriticalEvent;
 
 public class SafeShoppingEvent implements CriticalEvent{
-	/**
-	 * Generated serial ID
-	 */
-	private static final long serialVersionUID = 8337703243371428866L;
 	//token in the check out http message is the critical event
 	private String token;
 	private String payerID;
-	private boolean paySucceed;
+	private String sessionID;
+    	private boolean paySucceed;
 	
-	public SafeShoppingEvent(String token, String payerID, boolean paySucceed){
+	public SafeShoppingEvent(String token, String payerID, String sessionID, boolean paySucceed){
 		this.token = token;
 		this.payerID = payerID;
+		this.sessionID = sessionID;
 		this.paySucceed = paySucceed;
 	}
 	
@@ -26,6 +24,10 @@ public class SafeShoppingEvent implements CriticalEvent{
 		return this.payerID;
 	}
 	
+	public String getSessionID(){
+		return this.sessionID;
+	}
+
 	public boolean getPaySucceed(){
 		return this.paySucceed;
 	}
@@ -38,6 +40,9 @@ public class SafeShoppingEvent implements CriticalEvent{
 		this.payerID = payerID;
 	}
 	
+	public void setSessionID(String sessionID){
+		this.sessionID = sessionID;
+	}
 	public void setPaySucceed(boolean paySucceed) {
 		this.paySucceed = paySucceed;
 	}
