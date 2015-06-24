@@ -7,8 +7,15 @@ package icap.services;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Properties;
+
+import net.serviceautomata.instantiation.SafeShoppingEnforcerFactory;
+import net.serviceautomata.javatarget.EnforcerFactory;
 import tools.general.ExtendedByteArrayOutputStream;
 import tools.logger.Log;
 import icap.IcapServer;
@@ -23,6 +30,15 @@ import icap.core.IcapParserException;
  */
 public class SafeShoppingAdapter extends AbstractService 
 {
+	private EnforcerFactory enforcerFactory = new SafeShoppingEnforcerFactory();
+
+	private final static int DEFAULT_ENFORCER_PORT = 10001;
+	private Socket enforcerSocket;
+	private InetSocketAddress enforcerAddress;
+	
+	private final static int DEFAULT_INTERCEPT_PORT = 10002;
+	private Socket eventSocket;
+	private InetSocketAddress eventAddress;
 
 	//-------------ICAP parser parameters-------------------
 	/**Human readable name for service, used mainly for logs*/
@@ -95,8 +111,10 @@ public class SafeShoppingAdapter extends AbstractService
 	 */
 	public SafeShoppingAdapter(IcapServer icapserver, Socket clientsocket){
 		super(icapserver, clientsocket);
+		/* Init the icap server */
 		this.server = icapserver;
 		if (clientsocket!=null) this.setSocket(clientsocket);
+		/*
 		try{
 			initialized = initialize();
 		} catch (Exception e){
@@ -104,7 +122,17 @@ public class SafeShoppingAdapter extends AbstractService
 			e.printStackTrace();
 			System.exit(1);
 		}
+		*/
+		// TODO split another method for 
+		// initialization of enforcer factory
+		/* Init the Enforcer factory */
+		// ---- Initialization of enforcer socket
+		enforcerSocket = new Socket();
+		enforcerAddress = new InetSocketAddress("localhost", DEFAULT_ENFORCER_PORT);
 
+		// ---- Initialization of event socket
+		eventSocket = new Socket();
+		eventAddress = new InetSocketAddress("localhost", DEFAULT_INTERCEPT_PORT);
 	}
 	//	<------------------------------------------------------------------------->
 

@@ -1,7 +1,5 @@
 package net.serviceautomata.instantiation;
 
-import java.io.File;
-
 import net.serviceautomata.javacor.CriticalEvent;
 import net.serviceautomata.javacor.DelegationReqResp;
 import net.serviceautomata.javacor.LocalPolicy;
@@ -20,7 +18,7 @@ public class SafeShoppingPolicy extends LocalPolicy{
 	 * Construct a local policy object.
 	 * @param identifier The identifier of the unit using the local policy
 	 */
-	public SafeShoppingPolicy(final String identifier, String lockUsername, File lockFilename) {
+	public SafeShoppingPolicy(final String identifier) {
 		super(identifier);
 	}
 	
