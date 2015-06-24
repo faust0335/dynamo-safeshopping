@@ -4,14 +4,14 @@ import net.serviceautomata.javacor.CriticalEvent;
 
 public class SafeShoppingEvent implements CriticalEvent{
 	/**
-	 * 
+	 * Generated serial id
 	 */
 	private static final long serialVersionUID = 6367746522189849621L;
 	//token in the check out HTTP message is the critical event
-	private String sessionID;
 	private String token;
 	private String payerID;
-	private boolean paySucceed;
+	private String sessionID;
+    private boolean paySucceed;
 	
 	/*
 	 * Construct a new critical event with the following parameters
@@ -29,10 +29,6 @@ public class SafeShoppingEvent implements CriticalEvent{
 		this.paySucceed = paySucceed;
 	}
 	
-	public String getSessionID(){
-		return this.sessionID;
-	}
-	
 	public String getToken(){
 		return this.token;
 	}
@@ -41,12 +37,12 @@ public class SafeShoppingEvent implements CriticalEvent{
 		return this.payerID;
 	}
 	
+	public String getSessionID(){
+		return this.sessionID;
+	}
+
 	public boolean getPaySucceed(){
 		return this.paySucceed;
-	}
-	
-	public void setSessionID(String sessionID) {
-		this.sessionID = sessionID;
 	}
 	
 	public void setToken(String token) {
@@ -57,6 +53,9 @@ public class SafeShoppingEvent implements CriticalEvent{
 		this.payerID = payerID;
 	}
 	
+	public void setSessionID(String sessionID){
+		this.sessionID = sessionID;
+	}
 	public void setPaySucceed(boolean paySucceed) {
 		this.paySucceed = paySucceed;
 	}
