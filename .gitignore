@@ -1,0 +1,7 @@
+.classpath
+.settings/
+.tmp/
+SafeShopping.jar
+.project
+log/
+bin/
