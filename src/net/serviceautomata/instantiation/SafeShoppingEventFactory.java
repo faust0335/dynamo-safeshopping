@@ -21,11 +21,11 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	/*
 	 * getToken method is used to extract the token from the http message
 	 */
-	protected static String getToken(String sHTTPMessage){
-		if(!sHTTPMessage.isEmpty() && sHTTPMessage.contains("token=") &&
-				sHTTPMessage.contains("&PayerID")){
-			String tokenID = sHTTPMessage.substring(sHTTPMessage.indexOf("token="),
-					sHTTPMessage.indexOf("&PayerID"));
+	protected static String getToken(String httpMessage){
+		if(!httpMessage.isEmpty() && httpMessage.contains("token=") &&
+				httpMessage.contains("&PayerID")){
+			String tokenID = httpMessage.substring(httpMessage.indexOf("token="),
+					httpMessage.indexOf("&PayerID"));
 			return(tokenID.substring(6));
 		}
 		else
@@ -35,12 +35,12 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	/*
 	 * getPayerID method is used to extract the payerID from the http message
 	 */
-	protected static String getPayerID(String sHTTPMessage){
-		if(!sHTTPMessage.isEmpty() &&
-				sHTTPMessage.contains("token=") &&
-				sHTTPMessage.contains("&PayerID")){
-			String payerID = sHTTPMessage.substring(sHTTPMessage.indexOf("PayerID="),
-					sHTTPMessage.indexOf("HTTP"));
+	protected static String getPayerID(String httpMessage){
+		if(!httpMessage.isEmpty() &&
+				httpMessage.contains("token=") &&
+				httpMessage.contains("&PayerID")){
+			String payerID = httpMessage.substring(httpMessage.indexOf("PayerID="),
+					httpMessage.indexOf("HTTP"));
 			return(payerID.substring(8));
 		}
 		else
@@ -48,17 +48,17 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	}
 	
 	//getSessionID method is used to extract the sessionID from the http message
-	protected static String getSessionID(String hm){
-		if(!hm.isEmpty() && hm.contains("sessionid")){
-			String sessionid = hm.substring(hm.indexOf("sessionid"));
+	protected static String getSessionID(String httpMessage){
+		if(!httpMessage.isEmpty() && httpMessage.contains("sessionid")){
+			String sessionid = httpMessage.substring(httpMessage.indexOf("sessionid"));
 			return(sessionid.substring(9));
 		}
 		else
 			return null;
 	}
 	
-	protected static boolean getPaySucceed(String hm){
-		if(!hm.isEmpty() && hm.contains("success")){
+	protected static boolean getPaySucceed(String httpMessage){
+		if(!httpMessage.isEmpty() && httpMessage.contains("success")){
 			return true;
 		}
 		else
