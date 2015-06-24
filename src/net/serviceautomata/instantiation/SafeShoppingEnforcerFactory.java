@@ -1,11 +1,11 @@
 package net.serviceautomata.instantiation;
 
+import net.serviceautomata.lib.enforcer.PermittingEnforcer;
+import net.serviceautomata.lib.enforcer.SuppressingEnforcer;
 import net.serviceautomata.javacor.CriticalEvent;
 import net.serviceautomata.javacor.EnforcementDecision;
 import net.serviceautomata.javatarget.Enforcer;
 import net.serviceautomata.javatarget.EnforcerFactory;
-import net.serviceautomata.lib.enforcer.PermittingEnforcer;
-import net.serviceautomata.lib.enforcer.SuppressingEnforcer;
 
 public class SafeShoppingEnforcerFactory implements EnforcerFactory{
 	/*
