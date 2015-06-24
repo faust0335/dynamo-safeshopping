@@ -30,6 +30,7 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
+                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -60,6 +61,11 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
+    </target>
+    <target name="Starter">
+        <java classname="net.serviceautomato.Starter" failonerror="true" fork="yes">
+            <classpath refid="SafeShopping.classpath"/>
+        </java>
     </target>
     <target name="Main (2)">
         <java classname="dynamo.Main" failonerror="true" fork="yes">
