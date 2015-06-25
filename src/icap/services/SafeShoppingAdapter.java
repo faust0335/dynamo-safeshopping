@@ -7,11 +7,8 @@ package icap.services;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Properties;
 
 import net.serviceautomata.instantiation.SafeShoppingEnforcerFactory;
@@ -114,7 +111,6 @@ public class SafeShoppingAdapter extends AbstractService
 		/* Init the icap server */
 		this.server = icapserver;
 		if (clientsocket!=null) this.setSocket(clientsocket);
-		/*
 		try{
 			initialized = initialize();
 		} catch (Exception e){
@@ -122,7 +118,6 @@ public class SafeShoppingAdapter extends AbstractService
 			e.printStackTrace();
 			System.exit(1);
 		}
-		*/
 		// TODO split another method for 
 		// initialization of enforcer factory
 		/* Init the Enforcer factory */
@@ -197,6 +192,7 @@ public class SafeShoppingAdapter extends AbstractService
 	 * @see icap.core.AbstractService#getResponse(java.io.ByteArrayOutputStream)
 	 */
 	public int getResponse(ByteArrayOutputStream bas)  {
+		System.out.println(this.reqHeader.toString());
 		if (Log.isEnable()) logstr.setLength(0);
 		bas.reset();
 		long timing = System.nanoTime();
