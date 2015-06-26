@@ -10,7 +10,7 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	 */
 	
 	
-	protected static SafeShoppingEvent createEvent(String httpMessage){
+	public static SafeShoppingEvent createEvent(String httpMessage){
 		String token = getToken(httpMessage);
 		String payerID = getPayerID(httpMessage);
 		String sessionID = getSessionID(httpMessage);
