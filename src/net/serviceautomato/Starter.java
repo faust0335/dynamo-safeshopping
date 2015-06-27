@@ -1,7 +1,6 @@
 package net.serviceautomato;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
@@ -13,8 +12,8 @@ import icap.IcapServer;
 import org.apache.log4j.Level;
 
 public class Starter {
-	private final static int DEFAULT_ENFORCER_PORT = 10001;
-	private final static int DEFAULT_INTERCEPT_PORT = 10002;
+	private final static int DEFAULT_SERVICE_PORT = 10001;
+	private final static int DEFAULT_ICAP_PORT = 10002;
 	private final static int DEFAULT_REMOTE_PORT = 10003;
 
 	private static Coordinator coordinator;
@@ -22,17 +21,13 @@ public class Starter {
 		@Override
 		public void run() {
 			CoordinatorAddressing ca = new CoordinatorAddressing();
-			ca.setLocalEnforcerAddress(new InetSocketAddress("localhost",
-					DEFAULT_ENFORCER_PORT));
-			ca.setPrivateAddress(new InetSocketAddress("localhost",
-					DEFAULT_INTERCEPT_PORT));
+			ca.setLocalEnforcerAddress(new InetSocketAddress(DEFAULT_ICAP_PORT));
+			ca.setPrivateAddress(new InetSocketAddress(DEFAULT_REMOTE_PORT));
 			try {
 				coordinator = new Coordinator("test", new ServerSocket(
-						DEFAULT_INTERCEPT_PORT, 0,
-						InetAddress.getByName("localhost")), new ServerSocket(
-						DEFAULT_REMOTE_PORT, 0,
-						InetAddress.getByName("localhost")), ca,
-						new SafeShoppingPolicy("safePolicy"), Level.DEBUG);
+						DEFAULT_SERVICE_PORT), new ServerSocket(
+						DEFAULT_REMOTE_PORT), ca, new SafeShoppingPolicy(
+						"safePolicy"), Level.DEBUG);
 				icapInstance.start();
 				coordinator.run();
 			} catch (IOException e) {

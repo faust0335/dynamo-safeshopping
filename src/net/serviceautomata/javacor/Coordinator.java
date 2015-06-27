@@ -257,7 +257,6 @@ public class Coordinator implements Runnable {
 
 				// Step 7a: connect to local enforcer
 				try {
-					System.out.println("CliSeAu: " + socket.toString());
 					Socket out_connection = addressing.connectLocalEnforcer();
 					try {
 						// Step 8a: send serialized enforcement decision

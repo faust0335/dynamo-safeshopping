@@ -10,17 +10,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Properties;
 
 import net.serviceautomata.instantiation.SafeShoppingDecision;
-import net.serviceautomata.instantiation.SafeShoppingEnforcerFactory;
 import net.serviceautomata.instantiation.SafeShoppingEventFactory;
-import net.serviceautomata.javatarget.EnforcerFactory;
 import tools.general.ExtendedByteArrayOutputStream;
 import tools.logger.Log;
 import icap.IcapServer;
@@ -34,9 +30,7 @@ import icap.core.IcapParserException;
  *
  */
 public class SafeShoppingAdapter extends AbstractService {
-	private EnforcerFactory enforcerFactory = new SafeShoppingEnforcerFactory();
-
-	private final static int DEFAULT_ENFORCER_PORT = 10001;
+	private final static int DEFAULT_CLISEAU_PORT = 10001;
 	private ServerSocket enforcerSocket;
 
 	private final static int DEFAULT_INTERCEPT_PORT = 10002;
@@ -113,6 +107,19 @@ public class SafeShoppingAdapter extends AbstractService {
 	public static String[] getCompressibleContentTypes() {
 		return compressibleContentTypes;
 	}
+	
+	public void initCliSeAuSocket() {
+		// ---- Initialization of event socket
+		eventSocket = new Socket();
+		eventAddress = new InetSocketAddress("localhost", DEFAULT_CLISEAU_PORT);
+		if (enforcerSocket == null) {
+			try {
+				enforcerSocket = new ServerSocket();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	// <------------------------------------------------------------------------->
 	/**
@@ -137,14 +144,9 @@ public class SafeShoppingAdapter extends AbstractService {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		// TODO split another method for
-		// initialization of enforcer factory
-		/* Init the Enforcer factory */
+		// Initialize the sockets for CliSeAu 
+		initCliSeAuSocket();
 
-		// ---- Initialization of event socket
-		eventSocket = new Socket();
-		eventAddress = new InetSocketAddress("localhost",
-				DEFAULT_INTERCEPT_PORT);
 	}
 
 	// <------------------------------------------------------------------------->
@@ -399,15 +401,17 @@ public class SafeShoppingAdapter extends AbstractService {
 		// Comunicate with CliSeAu
 		try {
 			// Initialize socket
+			if (enforcerSocket.isClosed()) {
+				enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT);
+			}
+			if (!enforcerSocket.isBound()) {
+				enforcerSocket.bind(new InetSocketAddress(DEFAULT_INTERCEPT_PORT));
+			}
 
-			if ((enforcerSocket == null) || !enforcerSocket.isBound())
-				enforcerSocket = new ServerSocket(DEFAULT_ENFORCER_PORT, 0,
-						InetAddress.getLocalHost());
 			Thread listen = new Thread() {
 				@Override
 				public void run() {
 					try {
-						System.out.println("Client: " + CliClientSocket.toString());
 						CliClientSocket = enforcerSocket.accept();
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -415,6 +419,9 @@ public class SafeShoppingAdapter extends AbstractService {
 				}
 			};
 			listen.start();
+			if (eventSocket.isClosed()) {
+				eventSocket = new Socket();
+			}
 			eventSocket.connect(eventAddress);
 			// Sending Event
 			ObjectOutputStream oos = new ObjectOutputStream(
@@ -430,12 +437,19 @@ public class SafeShoppingAdapter extends AbstractService {
 					.readObject();
 			CliClientSocket.close();
 			eventSocket.close();
+			enforcerSocket.close();
+			System.gc();
 			if (decision == SafeShoppingDecision.PERMIT)
 				System.out.println("Ja");
 			else
 				System.out.println("Nein");
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			// We ignore exception from current thread 
+			// since it's done in other thread
+			//e1.printStackTrace();
+			eventSocket.close();
+			enforcerSocket.close();
+			return 200;
 		}
 
 		if (this.brand == ClientBrand.NETAPP) {// 204 not supported by netcache
