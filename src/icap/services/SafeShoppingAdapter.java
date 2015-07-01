@@ -107,7 +107,7 @@ public class SafeShoppingAdapter extends AbstractService {
 	public static String[] getCompressibleContentTypes() {
 		return compressibleContentTypes;
 	}
-	
+
 	public void initCliSeAuSocket() {
 		// ---- Initialization of event socket
 		eventSocket = new Socket();
@@ -144,7 +144,7 @@ public class SafeShoppingAdapter extends AbstractService {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		// Initialize the sockets for CliSeAu 
+		// Initialize the sockets for CliSeAu
 		initCliSeAuSocket();
 
 	}
@@ -397,182 +397,74 @@ public class SafeShoppingAdapter extends AbstractService {
 	public synchronized int getReqmodResponse(ByteArrayOutputStream bas)
 			throws Exception {
 		// ----------------------------------------------------------
+		boolean canCont = true;
 
-		// Ignore normal messages
-		if (!this.req_url.contains("token") 
-				&& !this.reqHeader.toString().contains("payerID")) {
-			return 200;
-		}
-		//System.out.println("\nURL: " + this.req_url + "\nHeader: " + this.reqHeader.toString());
-		// Comunicate with CliSeAu
-		try {
-			// Initialize socket
-			if (enforcerSocket.isClosed()) {
-				enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT);
+		while (canCont) {
+			// Ignore normal messages
+			/*
+			if (!this.req_url.contains("token")
+					&& !this.reqHeader.toString().contains("payerID")) {
+				return 200;
 			}
-			if (!enforcerSocket.isBound()) {
-				enforcerSocket.bind(new InetSocketAddress(DEFAULT_INTERCEPT_PORT));
-			}
+			*/
+			//System.out.println("\nURL: " + this.req_url + "\nHeader: " +
+			//this.reqHeader.toString());
 
-			Thread listen = new Thread() {
-				@Override
-				public void run() {
-					try {
-						CliClientSocket = enforcerSocket.accept();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+			// Comunicate with CliSeAu
+			try {
+				// Initialize socket
+				if (enforcerSocket.isClosed()) {
+					enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT);
 				}
-			};
-			listen.start();
-			if (eventSocket.isClosed()) {
-				eventSocket = new Socket();
-			}
-			eventSocket.connect(eventAddress);
-			// Sending Event
-			ObjectOutputStream oos = new ObjectOutputStream(
-					eventSocket.getOutputStream());
-			oos.writeObject(SafeShoppingEventFactory.createEvent(this.reqHeader
-					.toString()));
+				if (!enforcerSocket.isBound()) {
+					enforcerSocket.bind(new InetSocketAddress(
+							DEFAULT_INTERCEPT_PORT));
+				}
 
-			// Receiving enforcement
-			listen.join();
-			ObjectInputStream ois = new ObjectInputStream(
-					CliClientSocket.getInputStream());
-			SafeShoppingDecision decision = (SafeShoppingDecision) ois
-					.readObject();
-			CliClientSocket.close();
-			eventSocket.close();
-			enforcerSocket.close();
-			if (decision == SafeShoppingDecision.PERMIT)
-				System.out.println("Ja");
-			else
-				System.out.println("Nein");
-		} catch (IOException e1) {
-			//e1.printStackTrace();
-			eventSocket.close();
-			enforcerSocket.close();
-			Thread.sleep(500);
-			// TODO Put this into a loop instead of recursive calling
-			return this.getReqmodResponse(bas);
-		}
+				Thread listen = new Thread() {
+					@Override
+					public void run() {
+						try {
+							CliClientSocket = enforcerSocket.accept();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				};
+				listen.start();
+				if (eventSocket.isClosed()) {
+					eventSocket = new Socket();
+				}
+				eventSocket.connect(eventAddress);
+				// Sending Event
+				ObjectOutputStream oos = new ObjectOutputStream(
+						eventSocket.getOutputStream());
+				oos.writeObject(SafeShoppingEventFactory
+						.createEvent(this.reqHeader.toString()));
 
-		if (this.brand == ClientBrand.NETAPP) {// 204 not supported by netcache
-												// ==> generates 200 (works
-												// similar way to 204, no body
-												// needed)
-			StringBuilder sb = new StringBuilder();
-			sb.append("ICAP/1.0 200 OK\r\n").append(server.getISTAG())
-					.append(CRLF);
-			// add ICAP host, then HTTP header at position zero (constant)
-			sb.append(server.icaphost).append("Encapsulated: ")
-					.append(this.i_encapsulated).append(CRLF);
-			sb.append("Cache-Control: no-cache").append(CRLF).append(CRLF);
-			sb.append(this.reqHeader);
-			bas.write(sb.toString().getBytes());
-			return 200;
-		}
-		// ----------------------------------------------------------
-
-		// ----------------------------------------------------------
-		// If here, there are actions to perform
-		// Retrieve the body
-		boolean containsBody = false;
-		if (i_req_body > 0) {
-			containsBody = this.getAllBody();
-		}
-		// ----------------------------------------------------------
-
-		// ----------------------------------------------------------
-		// Deflate the body if compressed
-		boolean initiallyGzipped = isCompressed();
-		if (containsBody) {
-			if (initiallyGzipped)
-				reqBody = uncompress(reqBody);
-		}
-		// ----------------------------------------------------------
-
-		// ----------------------------------------------------------
-		String content = null;
-		if (containsBody) {
-			content = reqBody.toString();
-		}
-
-		// store initial content hash
-		int intitialcontenthash = content == null ? 0 : content.hashCode();
-
-		// ----------------------------------------------------------
-		// Update request body only if it has been modified by scripts
-		// Avoid unnecessary manipulation, and also possible encoding issues
-		// ----------------------------------------------------------
-		if (intitialcontenthash != (content == null ? 0 : content.hashCode())) { // content
-																					// has
-																					// been
-																					// changed
-																					// by
-																					// scripts
-			if (content != null && content.length() == 0)
-				content = null;
-			reqBody.reset();// clear old body
-
-			if (content != null) {
-				if (reqBody == null)
-					reqBody = new ExtendedByteArrayOutputStream();
-				reqBody.write(content.getBytes());
+				// Receiving enforcement
+				listen.join();
+				ObjectInputStream ois = new ObjectInputStream(
+						CliClientSocket.getInputStream());
+				SafeShoppingDecision decision = (SafeShoppingDecision) ois
+						.readObject();
+				CliClientSocket.close();
+				eventSocket.close();
+				enforcerSocket.close();
+				if (decision == SafeShoppingDecision.REJECT) {
+					System.out.println("Nein");
+					//this.reqHeader.toString();
+				}
+				canCont = false;
+			} catch (IOException e1) {
+				// e1.printStackTrace();
+				eventSocket.close();
+				enforcerSocket.close();
+				Thread.sleep(500);
+				continue;
+				//return this.getReqmodResponse(bas);
 			}
 		}
-		// ----------------------------------------------------------
-
-		// recompress request if it was compressed initially
-		if (initiallyGzipped) {
-			this.reqBody = compress(reqBody);
-			if (Log.isEnable())
-				logstr.append(" [gzip]");
-		}
-		// ----------------------------------------------------------
-
-		// Update length header with the new content length
-		updateContentLength(content == null ? 0 : reqBody.size());
-
-		if (!reqHeader.subSequence(0, 5).equals("HTTP/")) {
-			return fullResponse(bas);
-		}
-
-		// HTTP Request has been changed into HTTP Response (starts with
-		// HTTP/xxx instead of GET/POST/....)
-		// Let's create ICAP response
-		StringBuilder sb = new StringBuilder();
-		sb.append("ICAP/1.0 200 OK\r\n").append(server.getISTAG()).append(CRLF);// .append("Server: ICAP-Server-Software/1.0\r\n");
-		sb.append(server.icaphost).append("Encapsulated: res-hdr=0");
-		if (reqBody != null && reqBody.size() > 0) {
-			sb.append(", res-body="); // If body available, set tag req-body
-		} else {
-			sb.append(", null-body="); // else null-body
-		}
-		sb.append(reqHeader.length()).append(CRLF);
-		// Set if connection is persistent
-		if (server.useKeepAliveConnections()) {
-			sb.append(HEAD_CONNECTION_KEEPALIVE);
-		} else {
-			sb.append(HEAD_CONNECTION_CLOSED);
-			this.closeConnection();
-		}
-		// End of ICAP header
-		sb.append(CRLF);
-
-		// Add the complete HTTP header
-		sb.append(reqHeader);
-
-		bas.write(sb.toString().getBytes());
-
-		// If a body is available, add it using chunk
-		if (reqBody != null && reqBody.size() > 0) {
-			bas.write((Integer.toHexString(reqBody.size()) + CRLF).getBytes());
-			reqBody.writeTo(bas);
-			bas.write(CRLF_b);
-			bas.write(ENDCHUNK);
-		}
-		// All done => return response
 		return 200;
 	}
 
