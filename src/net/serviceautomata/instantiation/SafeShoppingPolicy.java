@@ -69,16 +69,17 @@ public class SafeShoppingPolicy extends LocalPolicy{
 		 * and token, the transaction will be permitted
 		 */
 		if (token == null && payerID == null) {
+			System.out.println("no token and no payerID!");
 			return SafeShoppingDecision.PERMIT;
 		}
 		/* 
 		 * If the HTTP message does not contain one of payerID and token,
 		 * the transaction will be considered invalid and rejected
 		 */
-		else if ((token != null && payerID == null) ||
+		/*else if ((token != null && payerID == null) ||
 				 (token == null && payerID != null)) {
 			return SafeShoppingDecision.REJECT;
-		}
+		}*/
 		else {
 			String[] pair = new String[2];
 			pair[0] = token;
@@ -92,6 +93,8 @@ public class SafeShoppingPolicy extends LocalPolicy{
 			if (transactionMap.containsKey(pair) &&
 					transactionMap.get(pair).equals(sessionID) &&
 					paySucceed) {
+				System.out.println("Token: " + transactionMap.keySet() + "PayerID: " + transactionMap.values());
+				System.out.println("Token: " + pair[0] + "PayerID: " + pair[1] );
 				return SafeShoppingDecision.REJECT;
 			}
 		
@@ -102,6 +105,8 @@ public class SafeShoppingPolicy extends LocalPolicy{
 			 */
 			if (!transactionMap.containsKey(pair)) {
 				transactionMap.put(pair, sessionID);
+				System.out.println("Token: " + transactionMap.keySet() + "PayerID: " + transactionMap.values());
+				System.out.println("Token: " + pair[0] + "PayerID: " + pair[1] );
 			}
 		}
 		return SafeShoppingDecision.PERMIT;

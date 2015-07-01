@@ -22,10 +22,11 @@ public class SafeShoppingEvent implements CriticalEvent{
 	 * 						completed 
 	 * @return				The new event extracted from the HTTP message
 	 */
-	public SafeShoppingEvent(String sessionID, String token, String payerID, boolean paySucceed){
-		this.sessionID = sessionID;
+	public SafeShoppingEvent(String token, String payerID, String sessionID, boolean paySucceed){
+		
 		this.token = token;
 		this.payerID = payerID;
+		this.sessionID = sessionID;
 		this.paySucceed = paySucceed;
 	}
 	
