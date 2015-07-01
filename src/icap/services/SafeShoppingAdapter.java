@@ -398,6 +398,12 @@ public class SafeShoppingAdapter extends AbstractService {
 			throws Exception {
 		// ----------------------------------------------------------
 
+		// Ignore normal messages
+		if (!this.req_url.contains("token") 
+				&& !this.reqHeader.toString().contains("payerID")) {
+			return 200;
+		}
+		//System.out.println("\nURL: " + this.req_url + "\nHeader: " + this.reqHeader.toString());
 		// Comunicate with CliSeAu
 		try {
 			// Initialize socket
@@ -438,18 +444,17 @@ public class SafeShoppingAdapter extends AbstractService {
 			CliClientSocket.close();
 			eventSocket.close();
 			enforcerSocket.close();
-			System.gc();
 			if (decision == SafeShoppingDecision.PERMIT)
 				System.out.println("Ja");
 			else
 				System.out.println("Nein");
 		} catch (IOException e1) {
-			// We ignore exception from current thread 
-			// since it's done in other thread
 			//e1.printStackTrace();
 			eventSocket.close();
 			enforcerSocket.close();
-			return 200;
+			Thread.sleep(500);
+			// TODO Put this into a loop instead of recursive calling
+			return this.getReqmodResponse(bas);
 		}
 
 		if (this.brand == ClientBrand.NETAPP) {// 204 not supported by netcache

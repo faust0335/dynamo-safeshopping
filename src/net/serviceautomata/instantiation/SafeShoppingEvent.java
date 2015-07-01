@@ -11,7 +11,6 @@ public class SafeShoppingEvent implements CriticalEvent{
 	private String token;
 	private String payerID;
 	private String sessionID;
-    private boolean paySucceed;
 	
 	/*
 	 * Construct a new critical event with the following parameters
@@ -22,11 +21,11 @@ public class SafeShoppingEvent implements CriticalEvent{
 	 * 						completed 
 	 * @return				The new event extracted from the HTTP message
 	 */
-	public SafeShoppingEvent(String sessionID, String token, String payerID, boolean paySucceed){
-		this.sessionID = sessionID;
+	public SafeShoppingEvent(String token, String payerID, String sessionID, boolean paySucceed){
+		
 		this.token = token;
 		this.payerID = payerID;
-		this.paySucceed = paySucceed;
+		this.sessionID = sessionID;
 	}
 	
 	public String getToken(){
@@ -40,10 +39,6 @@ public class SafeShoppingEvent implements CriticalEvent{
 	public String getSessionID(){
 		return this.sessionID;
 	}
-
-	public boolean getPaySucceed(){
-		return this.paySucceed;
-	}
 	
 	public void setToken(String token) {
 		this.token = token;
@@ -55,8 +50,5 @@ public class SafeShoppingEvent implements CriticalEvent{
 	
 	public void setSessionID(String sessionID){
 		this.sessionID = sessionID;
-	}
-	public void setPaySucceed(boolean paySucceed) {
-		this.paySucceed = paySucceed;
 	}
 }
