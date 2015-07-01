@@ -115,13 +115,13 @@ public class DHTChordPolicy extends LocalPolicy {
 	 * @param event	The critical event for which a decision is requested.
 	 * @return		The decision made to the coordinator
 	 */
+	// TODO Refactor this
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
 			throws IllegalArgumentException{
 		
 		String sessionID = event.getSessionID();
 		String token = event.getToken();
 		String payerID = event.getPayerID();
-		boolean paySucceed = event.getPaySucceed();
 		
 		/* 
 		 * If the HTTP message does not contain the information about payerID
@@ -149,8 +149,7 @@ public class DHTChordPolicy extends LocalPolicy {
 			 * the transaction with the same information will be rejected
 			 */
 			if (transactionMap.containsKey(pair) &&
-					transactionMap.get(pair).equals(sessionID) &&
-					paySucceed) {
+					transactionMap.get(pair).equals(sessionID)) {
 				return SafeShoppingDecision.REJECT;
 			}
 		
