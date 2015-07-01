@@ -1,7 +1,13 @@
 /**
+<<<<<<< HEAD
  * @author Chen, Yiqun
  * @author Liu, Yi
  * @author Xu, Yinhua
+=======
+ * @author Xu, Yinhua	(Main)
+ * @author Chen, Yiqun	(Cooperator)
+ * @author Liu, Yi		(Cooperator)
+>>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
  */
 package net.serviceautomata.chord;
 
@@ -43,7 +49,7 @@ public class CliSeAuNode{
 				return successor;
 			} else {
 				// Try to find the node closest to the target in the finger table
-				CliSeAuNode node = closestPrecedingNode(eventID);
+				CliSeAuNode node = closestPredecessor(eventID);
 				/* 
 				 * When such a node is coincidentally the current node, pass
 				 * the search task to the successor
@@ -104,7 +110,7 @@ public class CliSeAuNode{
 	 * @param eventID	The identifier of the event
 	 * @return			The closest predecessor of the event identifier
 	 */
-	private CliSeAuNode closestPrecedingNode(int eventID) {
+	private CliSeAuNode closestPredecessor(int eventID) {
 		for (int i = FingerTable.FINGER_NUMBER - 1; i >= 0; i--) {
 			Finger finger = fingerTable.getFinger(i);
 			int fingerKey = finger.getNode().getNodeID();
@@ -164,7 +170,11 @@ public class CliSeAuNode{
 	/**
 	 * Notify the predecessor of the joining of a new node
 	 * 
+<<<<<<< HEAD
 	 * @param node the newly coming node
+=======
+	 * @param node the bootstrapping node to join
+>>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
 	 */
 	
 	private void notifyPredecessor(CliSeAuNode node) {
@@ -223,7 +233,6 @@ public class CliSeAuNode{
 	}
 
 	public int compareTo(CliSeAuNode node) {
-		// TODO Auto-generated method stub
 		if (this.nodeID == node.nodeID) {
 			return 0;
 		} else if (this.nodeID < node.nodeID) {

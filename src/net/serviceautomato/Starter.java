@@ -28,24 +28,17 @@ public class Starter {
 						DEFAULT_SERVICE_PORT), new ServerSocket(
 						DEFAULT_REMOTE_PORT), ca, new SafeShoppingPolicy(
 						"safePolicy"), Level.DEBUG);
-				icapInstance.start();
 				coordinator.run();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	};
-	private static Thread icapInstance = new Thread() {
-		@Override
-		public void run() {
-			IcapServer.main(null);
-		}
-	};
 
 	public static void main(String[] args) {
+		IcapServer.main(null);
 		try {
 			CliSeAuInstance.start();
-			icapInstance.join();
 			CliSeAuInstance.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
