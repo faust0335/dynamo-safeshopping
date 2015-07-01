@@ -1,13 +1,7 @@
 /**
-<<<<<<< HEAD
- * @author Chen, Yiqun
- * @author Liu, Yi
- * @author Xu, Yinhua
-=======
  * @author Xu, Yinhua	(Main)
  * @author Chen, Yiqun	(Cooperator)
  * @author Liu, Yi		(Cooperator)
->>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
  */
 package net.serviceautomata.chord;
 
@@ -170,11 +164,7 @@ public class CliSeAuNode{
 	/**
 	 * Notify the predecessor of the joining of a new node
 	 * 
-<<<<<<< HEAD
-	 * @param node the newly coming node
-=======
 	 * @param node the bootstrapping node to join
->>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
 	 */
 	
 	private void notifyPredecessor(CliSeAuNode node) {

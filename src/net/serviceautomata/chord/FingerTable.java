@@ -1,13 +1,7 @@
 /**
-<<<<<<< HEAD
- * @author Chen, Yiqun
- * @author Liu, Yi
- * @author Xu, Yinhua
-=======
  * @author Xu, Yinhua	(Main)
  * @author Chen, Yiqun	(Cooperator)
  * @author Liu, Yi		(Cooperator)
->>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
  */
 package net.serviceautomata.chord;
 
@@ -40,10 +34,6 @@ public class FingerTable {
 	}
 	
 	/**
-<<<<<<< HEAD
-	 * 
-=======
->>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
 	 * @param i	The i-th entry of the finger table
 	 * @return	The node of the corresponding entry
 	 */

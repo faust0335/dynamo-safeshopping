@@ -1,13 +1,7 @@
 /**
-<<<<<<< HEAD
- * @author Chen, Yiqun
- * @author Liu, Yi
- * @author Xu, Yinhua
-=======
  * @author Xu, Yinhua	(Main)
  * @author Chen, Yiqun	(Cooperator)
  * @author Liu, Yi		(Cooperator)
->>>>>>> 359db2d36318fc20604d58ae8fadf4ef4e434ce1
  */
 package net.serviceautomata.chord;
 
