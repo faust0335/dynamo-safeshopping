@@ -1,31 +1,69 @@
+/*
+ * This is a simplified revised version of jchord-src-0.1 from
+ * https://code.google.com/p/joonion-jchord/downloads/list
+ */
+package net.serviceautomata.chord;
+
 /**
+ * This class simulates the internal and external environment for a CliSeAu node.
+ * With regard to the position of the CliSeAu node, we can locate the immediate
+ * successor and predecessor, and recursively all the other successors and
+ * predecessors on the ring. By taking advantage of such methods, we can also
+ * find the real CliSeAu node in charge of an event identifier. On the case of a
+ * new joining node, we have to notify the predecessor and successor of the new
+ * position with the help of a bootstrapping CliSeAu node, which has already been
+ * on the ring, and in the meantime the finger table should be stabilized in
+ * related to the current reality.
+ * 
  * @author Xu, Yinhua	(Main)
  * @author Chen, Yiqun	(Cooperator)
  * @author Liu, Yi		(Cooperator)
  */
-package net.serviceautomata.chord;
-
 public class CliSeAuNode{
-
+	
+	/**
+	 * The position of the CliSeAu node on the Chord ring
+	 */
 	private int nodeID;
-
+	
+	/**
+	 * This field points to the immediate predecessor of the current node on the
+	 * Chord ring
+	 */
 	private CliSeAuNode predecessor;
-
+	
+	/**
+	 * This field points to the immediate successor of the current node on the
+	 * Chord ring
+	 */
 	private CliSeAuNode successor;
 
+	/**
+	 * A CliSeAu node holds a finger table to search for the successor of the
+	 * given event identifier, sometimes itself or its successor
+	 */
 	private FingerTable fingerTable;
 	
+	/**
+	 * The length of the identifier ring, which will be increased or decreased
+	 * with respect to the changes to the FINGER_NUMBER
+	 */
 	public final static int RING_LENGTH =
 			(int) Math.pow(2, FingerTable.FINGER_NUMBER);
-
+	
+	/**
+	 * The constructor of a CliSeAu node to be initialized
+	 * @param nodeID The node identifier
+	 */
 	public CliSeAuNode(int nodeID) {
 		this.nodeID = nodeID;
-		this.fingerTable = new FingerTable(this);
-		this.createChord();
+		predecessor = null;
+		successor = this;
+		fingerTable = new FingerTable(this);
 	}
 
 	/**
-	 * Lookup a successor of given event identifier
+	 * Lookup a successor (handler) of the given event identifier
 	 * 
 	 * @param eventID	An event identifier to lookup
 	 * @return			The successor node of given key
@@ -58,13 +96,13 @@ public class CliSeAuNode{
 	}
 	
 	/**
-	 * Check whether the position of the resource is located between
-	 * the current node and the next node
+	 * Check whether the position of the resource is located between the current
+	 * node and the next node
 	 * 
 	 * @param currentID		The identifier of the current node
 	 * @param eventID		The identifier of the event
 	 * @param successorID	The identifier of the next node
-	 * @return				The judge
+	 * @return				A positive or negative feedback
 	 */
 	
 	public boolean isBetween (int currentID, int eventID, int successorID) {
@@ -75,7 +113,12 @@ public class CliSeAuNode{
 		
 		// When only one node exists in the ring
 		if (currentID == successorID) {
-			return false;
+			if (eventID == currentID && eventID == successorID) {
+				return false;
+			// currentID --> eventID --> currentID
+			} else {
+				return true;
+			}
 		// Multiple nodes in the ring
 		// nodeID = 0 not between currentID and successorID
 		} else if (currentID < successorID) {
@@ -89,7 +132,7 @@ public class CliSeAuNode{
 			// currentID --> eventID --> 0 --> successorID
 			if ((eventID > currentID && eventID < RING_LENGTH) ||
 			// currentID --> 0 --> eventID --> successorID
-					eventID >= 0 && eventID < successorID) {
+					(eventID >= 0 && eventID < successorID)) {
 				return true;
 			} else {
 				return false;
@@ -98,8 +141,8 @@ public class CliSeAuNode{
 	}
 
 	/**
-	 * Search the finger table from the last entry to the first one to find
-	 * a predecessor closest to the target event identifier
+	 * Search the finger table from the last entry to the first one to find a
+	 * predecessor closest to the target event identifier
 	 * 
 	 * @param eventID	The identifier of the event
 	 * @return			The closest predecessor of the event identifier
@@ -119,14 +162,6 @@ public class CliSeAuNode{
 		 * the event identifier.
 		 */
 		return this;
-	}
-
-	/**
-	 * Creates a new Chord ring.
-	 */
-	public void createChord() {
-		predecessor = null;
-		successor = this;
 	}
 
 	/**
@@ -151,7 +186,7 @@ public class CliSeAuNode{
 			if (this == successor ||
 			/*
 			 * Or the identifier of the new node is in the range of
-			 * (currentID, successorID)
+			 * (currentID, successorID]
 			 */
 					isBetween(this.getNodeID(), node.getNodeID(), successor.getNodeID())) {
 				successor = node; // Set the successor to the new node
@@ -185,8 +220,10 @@ public class CliSeAuNode{
 	public void fixFingers() {
 		for (int i = 0; i < FingerTable.FINGER_NUMBER; i++) {
 			Finger finger = fingerTable.getFinger(i);
-			int fingerKey = finger.getFingerKey();
-			finger.setNode(findSuccessor(fingerKey));
+			if (finger != null) {
+				int fingerKey = finger.getFingerKey();
+				finger.setNode(findSuccessor(fingerKey));
+			}
 		}
 	}
 
@@ -221,14 +258,39 @@ public class CliSeAuNode{
 	public void setFingerTable(FingerTable fingerTable) {
 		this.fingerTable = fingerTable;
 	}
-
+	
+	/**
+	 * Compare the identifier of the current node with the one of the given node
+	 * to see the current node should be before or after the give node clockwise,
+	 * or enjoy the same position with the given node.
+	 * 
+	 * @param node	The reference CliSeAu node
+	 * @return		The identifier of the current node larger	return 1
+	 * 				The identifier of the current node smaller	return -1
+	 * 				Otherwise									return 0
+	 */
 	public int compareTo(CliSeAuNode node) {
-		if (this.nodeID == node.nodeID) {
-			return 0;
+		if (this.nodeID > node.nodeID) {
+			return 1;
 		} else if (this.nodeID < node.nodeID) {
 			return -1;
 		} else {
-			return 1;
+			return 0;
 		}
+	}
+	
+	/**
+	 * Convert the information about the CliSeAu node into a string
+	 * 
+	 * @return A string of the CliSeAu node information
+	 */
+	public String toString() {
+		String nodeString = "Node " + Integer.toString(nodeID) + ":\n\n";
+		nodeString += "The Predecessor of Node " + Integer.toString(nodeID) +
+				" is " + Integer.toString(predecessor.getNodeID()) + ".\n";
+		nodeString += "The Successor of Node " + Integer.toString(nodeID) +
+				" is " + Integer.toString(successor.getNodeID()) + ".\n\n";
+		nodeString += fingerTable.toString();
+		return nodeString;
 	}
 }
