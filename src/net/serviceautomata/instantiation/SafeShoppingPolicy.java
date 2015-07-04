@@ -68,9 +68,6 @@ public class SafeShoppingPolicy extends LocalPolicy {
 
 		//event.getSessionID();
 		String token = event.getToken();
-		if (token != null) {
-			System.out.println("Token: " + token);
-		}
 		String payerID = event.getPayerID();
 
 		/*

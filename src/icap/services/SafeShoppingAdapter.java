@@ -427,7 +427,7 @@ public class SafeShoppingAdapter extends AbstractService {
 					e.printStackTrace();
 				}
 				continue;
-				//return this.getDecision(event);
+				// return this.getDecision(event);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -447,10 +447,10 @@ public class SafeShoppingAdapter extends AbstractService {
 	public synchronized int getReqmodResponse(ByteArrayOutputStream bas)
 			throws Exception {
 		// Ignore normal messages
-		/*
-		 * if (!this.req_url.contains("token") &&
-		 * !this.reqHeader.toString().contains("payerID")) { return 200; }
-		 */
+		if (!this.reqHeader.toString().contains("token")) {
+			return earlyResponse(bas);
+		}
+
 		System.out.println("\nURL: " + this.req_url + "\nHeader: "
 				+ this.reqHeader.toString());
 		if (this.getDecision(SafeShoppingEventFactory
