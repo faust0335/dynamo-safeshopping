@@ -30,14 +30,13 @@ public class Chord {
 	 * 
 	 * @param nodeID	The identifier of the node to be inserted into the Chord
 	 * 					ring
-	 * @return			
 	 */
-	public CliSeAuNode insertNode(Integer nodeID) {
+	public void insertNode(Integer nodeID) {
 		
 		nodeID = Integer.valueOf(nodeID.intValue() % CliSeAuNode.RING_LENGTH);
 		
 		// The Chord ring is empty
-		if (nodeMap.size() == 0) {
+		if (nodeMap.isEmpty()) {
 			/*
 			 * Create a new node for the given node identifier
 			 */
@@ -50,7 +49,7 @@ public class Chord {
 			nodeMap.get(nodeID).stabilize();
 		} else {
 			// The node with the identifier has already existed
-			if (!nodeMap.keySet().contains(nodeID)) {
+			if (!nodeMap.containsKey(nodeID)) {
 				// The Chord ring is not full
 				if (nodeMap.size() < CliSeAuNode.RING_LENGTH) {
 					/*
@@ -91,7 +90,46 @@ public class Chord {
 				}
 			}
 		}
-		return nodeMap.get(nodeID);
+	}
+	
+	/**
+	 * Remove the node with the given identifier on the ring (also remove the
+	 * mapping of the given identifier)
+	 * 
+	 * @param nodeID the node identifier
+	 */
+	public void removeNode (Integer nodeID) {
+		
+		if (nodeMap.containsKey(nodeID)) {
+			/*
+			 * targetPredecessor <--> target <--> targetSuccessor
+			 */
+			CliSeAuNode target = nodeMap.get(nodeID);
+			CliSeAuNode targetPredecessor = target.getPredecessor();
+			CliSeAuNode targetSuccessor = target.getSuccessor();
+			
+			/*
+			 * targetPredecessor.successor --> targetSuccessor
+			 * targetSuccessor.predecessor --> targetPredecessor
+			 * 
+			 * and still
+			 * 
+			 * target.predecessor --> targetPredecessor
+			 * target.successor --> targetSuccessor
+			 */
+			targetPredecessor.setSuccessor(targetSuccessor);
+			targetSuccessor.setPredecessor(targetPredecessor);
+			/*
+			 * Delete the mapping nodeID --> target from the node map
+			 */
+			nodeMap.remove(nodeID);
+			
+			for (Integer key: nodeMap.keySet()) {
+				nodeMap.get(key).fixFingers();
+			}
+			
+			System.out.println("NODE " + nodeID.intValue() + " IS REMOVED\n");
+		}
 	}
 	
 	/**
@@ -104,7 +142,7 @@ public class Chord {
 		
 		ArrayList<Integer> members = new ArrayList<Integer>();
 		
-		if (nodeID == null || nodeMap.size() == 0) {
+		if (nodeID == null || nodeMap.isEmpty()) {
 			return null;
 		}
 		
@@ -118,8 +156,16 @@ public class Chord {
 			int difference = CliSeAuNode.RING_LENGTH;
 			int predecessor = nodeID.intValue();
 			for (Integer member: members) {
+				/*
+				 * Compute the distance between the current node and every existing
+				 * node on Chord ring
+				 */
 				int differ = (nodeID.intValue() - member.intValue())
 						% CliSeAuNode.RING_LENGTH;
+				/*
+				 * Find the minimum distance and its corresponding node existing
+				 * on the Chord ring
+				 */
 				if (differ < difference) {
 					difference = differ;
 					predecessor = member;
@@ -136,26 +182,22 @@ public class Chord {
 	 * 					to be added
 	 * @return			The list of the sorted CliSeAu nodes
 	 */
-	public ArrayList<CliSeAuNode> createRing(Integer[] nodeIDList) {
+	public void createRing(Integer[] nodeIDList) {
 		
-		if (nodeIDList == null) {
-			return null;
+		if (nodeIDList != null) {
+			/*
+			 * Delete all mappings in the node map
+			 */
+			nodeMap.clear();
+			
+			/*
+			 * Create the new nodes for all the elements in the node identifier list
+			 */
+			for (int i = 0; i < nodeIDList.length; i++) {
+				Integer nodeID = nodeIDList[i];
+				insertNode(nodeID);
+			}
 		}
-		
-		nodeMap.clear();
-		
-		ArrayList<CliSeAuNode> nodeList = new ArrayList<CliSeAuNode>();
-		
-		/*
-		 * Create the new nodes for all the elements in the node identifier list
-		 */
-		for (int i = 0; i < nodeIDList.length; i++) {
-			Integer nodeID = nodeIDList[i];
-			insertNode(nodeID);
-			nodeList.add(nodeMap.get(nodeID));
-		}
-		
-		return nodeList;
 	}
 	
 	/**
@@ -173,5 +215,24 @@ public class Chord {
 		 * in the node map.
 		 */
 		nodeMap.put(node.getNodeID(), node);
+	}
+	
+	/**
+	 * Convert the information of all CliSeAu nodes on the Chord ring
+	 * 
+	 * @return The information of the Chord ring
+	 */
+	public String toString() {
+		String chordString = "";
+		
+		if (nodeMap.isEmpty()) {
+			chordString = "EMPTY RING\n";
+		} else {
+			for (Integer key: nodeMap.keySet()) {
+				chordString += nodeMap.get(key).toString() + "\n";
+			}
+		}
+		
+		return chordString;
 	}
 }
