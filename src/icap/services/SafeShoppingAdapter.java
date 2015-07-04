@@ -16,8 +16,8 @@ import java.net.Socket;
 import java.util.Properties;
 
 import net.serviceautomata.instantiation.SafeShoppingDecision;
+import net.serviceautomata.instantiation.SafeShoppingEvent;
 import net.serviceautomata.instantiation.SafeShoppingEventFactory;
-import tools.general.ExtendedByteArrayOutputStream;
 import tools.logger.Log;
 import icap.IcapServer;
 import icap.core.AbstractService;
@@ -384,6 +384,56 @@ public class SafeShoppingAdapter extends AbstractService {
 		return earlyResponse(bas);
 	}
 
+	// Comunicate with CliSeAu
+	public synchronized SafeShoppingDecision getDecision(SafeShoppingEvent event) {
+		while (true) {
+			try {
+				// Initialize socket
+				if (enforcerSocket.isClosed()) {
+					enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT);
+				}
+				if (!enforcerSocket.isBound()) {
+					enforcerSocket.bind(new InetSocketAddress(
+							DEFAULT_INTERCEPT_PORT));
+				}
+
+				if (eventSocket.isClosed()) {
+					eventSocket = new Socket();
+				}
+				eventSocket.connect(eventAddress);
+				// Sending Event
+				ObjectOutputStream oos = new ObjectOutputStream(
+						eventSocket.getOutputStream());
+				oos.writeObject(event);
+
+				// Receiving enforcement
+				CliClientSocket = enforcerSocket.accept();
+				ObjectInputStream ois = new ObjectInputStream(
+						CliClientSocket.getInputStream());
+				SafeShoppingDecision decision = (SafeShoppingDecision) ois
+						.readObject();
+
+				CliClientSocket.close();
+				eventSocket.close();
+				enforcerSocket.close();
+				return decision;
+			} catch (IOException e1) {
+				// e1.printStackTrace();
+				try {
+					eventSocket.close();
+					enforcerSocket.close();
+					Thread.sleep(200);
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+				continue;
+				//return this.getDecision(event);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	// <------------------------------------------------------------------------->
 	/**
 	 * AbstractRespmodeService implementation ICAP request has been parsed:
@@ -396,76 +446,19 @@ public class SafeShoppingAdapter extends AbstractService {
 	 */
 	public synchronized int getReqmodResponse(ByteArrayOutputStream bas)
 			throws Exception {
-		// ----------------------------------------------------------
-		boolean canCont = true;
-
-		while (canCont) {
-			// Ignore normal messages
-			/*
-			if (!this.req_url.contains("token")
-					&& !this.reqHeader.toString().contains("payerID")) {
-				return 200;
-			}
-			*/
-			//System.out.println("\nURL: " + this.req_url + "\nHeader: " +
-			//this.reqHeader.toString());
-
-			// Comunicate with CliSeAu
-			try {
-				// Initialize socket
-				if (enforcerSocket.isClosed()) {
-					enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT);
-				}
-				if (!enforcerSocket.isBound()) {
-					enforcerSocket.bind(new InetSocketAddress(
-							DEFAULT_INTERCEPT_PORT));
-				}
-
-				Thread listen = new Thread() {
-					@Override
-					public void run() {
-						try {
-							CliClientSocket = enforcerSocket.accept();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				};
-				listen.start();
-				if (eventSocket.isClosed()) {
-					eventSocket = new Socket();
-				}
-				eventSocket.connect(eventAddress);
-				// Sending Event
-				ObjectOutputStream oos = new ObjectOutputStream(
-						eventSocket.getOutputStream());
-				oos.writeObject(SafeShoppingEventFactory
-						.createEvent(this.reqHeader.toString()));
-
-				// Receiving enforcement
-				listen.join();
-				ObjectInputStream ois = new ObjectInputStream(
-						CliClientSocket.getInputStream());
-				SafeShoppingDecision decision = (SafeShoppingDecision) ois
-						.readObject();
-				CliClientSocket.close();
-				eventSocket.close();
-				enforcerSocket.close();
-				if (decision == SafeShoppingDecision.REJECT) {
-					System.out.println("Nein");
-					//this.reqHeader.toString();
-				}
-				canCont = false;
-			} catch (IOException e1) {
-				// e1.printStackTrace();
-				eventSocket.close();
-				enforcerSocket.close();
-				Thread.sleep(500);
-				continue;
-				//return this.getReqmodResponse(bas);
-			}
+		// Ignore normal messages
+		/*
+		 * if (!this.req_url.contains("token") &&
+		 * !this.reqHeader.toString().contains("payerID")) { return 200; }
+		 */
+		System.out.println("\nURL: " + this.req_url + "\nHeader: "
+				+ this.reqHeader.toString());
+		if (this.getDecision(SafeShoppingEventFactory
+				.createEvent(this.reqHeader.toString())) == SafeShoppingDecision.REJECT) {
+			System.out.println("Nein");
 		}
-		return 200;
+
+		return earlyResponse(bas);
 	}
 
 	// <------------------------------------------------------------------------->
