@@ -418,7 +418,6 @@ public class SafeShoppingAdapter extends AbstractService {
 				enforcerSocket.close();
 				return decision;
 			} catch (IOException e1) {
-				// e1.printStackTrace();
 				try {
 					eventSocket.close();
 					enforcerSocket.close();
@@ -427,7 +426,6 @@ public class SafeShoppingAdapter extends AbstractService {
 					e.printStackTrace();
 				}
 				continue;
-				// return this.getDecision(event);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -451,11 +449,60 @@ public class SafeShoppingAdapter extends AbstractService {
 			return earlyResponse(bas);
 		}
 
+		// For debugging
 		System.out.println("\nURL: " + this.req_url + "\nHeader: "
 				+ this.reqHeader.toString());
+
+		// If denied, intercept the request and return error page
+		// FIXME Return the page correctly
 		if (this.getDecision(SafeShoppingEventFactory
 				.createEvent(this.reqHeader.toString())) == SafeShoppingDecision.REJECT) {
-			System.out.println("Nein");
+			StringBuilder icapHeader = new StringBuilder();
+			icapHeader.append("ICAP/1.0 200 OK\r\n").append(server.getISTAG())
+					.append(CRLF).append(server.icaphost);
+			icapHeader.append("Encapsulated: res-hdr=0");
+			icapHeader.append(", res-body="); // If body available, set tag
+												// req-body
+
+			// Set the modified header
+			StringBuilder httpHeader = new StringBuilder();
+
+			// TODO Is this ETag necessary?
+			httpHeader.append("HTTP/1.1 403 Forbidden\r\n")
+					.append("ETag: \"63600-1989-3a017169\"").append(CRLF);
+
+			// Set the html returned to user
+			StringBuilder httpBody = new StringBuilder();
+			httpBody.append("<html><head></head><body><b>403 Forbidden</b>")
+					.append("You are not allowed to use the same token more than once!</body></html>");
+
+			// Define header offset
+			icapHeader.append(httpHeader.length() + httpBody.length()).append(
+					CRLF);
+			httpHeader.append("Content-Length: ").append(httpBody.length())
+					.append(CRLF).append("Content-Type: text/html")
+					.append(CRLF);
+
+			// Set if connection is persistent
+			if (server.useKeepAliveConnections()) {
+				icapHeader.append(HEAD_CONNECTION_KEEPALIVE).append(CRLF);
+			} else {
+				icapHeader.append(HEAD_CONNECTION_CLOSED).append(CRLF);
+				this.closeConnection();
+			}
+
+			bas.write((icapHeader.toString() + httpHeader.toString())
+					.getBytes());
+
+			// TODO Testing ICAP Response
+			System.out.println(icapHeader.toString());
+			System.out.println(httpHeader.toString());
+			System.out.println(httpBody.toString());
+
+			bas.write(httpBody.toString().getBytes());
+			bas.write(CRLF_b);
+			bas.write(ENDCHUNK);
+			return 400;
 		}
 
 		return earlyResponse(bas);
