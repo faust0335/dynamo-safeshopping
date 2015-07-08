@@ -68,9 +68,6 @@ public class SafeShoppingPolicy extends LocalPolicy {
 
 		//event.getSessionID();
 		String token = event.getToken();
-		if (token != null) {
-			System.out.println("Token: " + token);
-		}
 		String payerID = event.getPayerID();
 
 		/*
@@ -78,7 +75,6 @@ public class SafeShoppingPolicy extends LocalPolicy {
 		 * and token, the transaction will be permitted
 		 */
 		if (token == null && payerID == null) {
-			System.out.println("no token and no payerID!");
 			return SafeShoppingDecision.PERMIT;
 
 		} else {
