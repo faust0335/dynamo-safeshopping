@@ -30,10 +30,10 @@ import icap.core.IcapParserException;
  *
  */
 public class SafeShoppingAdapter extends AbstractService {
-	private final static int DEFAULT_CLISEAU_PORT = 10001;
+	private final static int DEFAULT_CLISEAU_PORT = 10000;
 	private ServerSocket enforcerSocket;
 
-	private final static int DEFAULT_INTERCEPT_PORT = 10002;
+	private final static int DEFAULT_INTERCEPT_PORT = 11000;
 	private Socket eventSocket;
 	private InetSocketAddress eventAddress;
 
