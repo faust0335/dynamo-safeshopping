@@ -32,8 +32,8 @@ public class DHTChordPolicy extends LocalPolicy {
 	 */
 	protected int makeEventID(CriticalEvent ce){
 		SafeShoppingEvent se = (SafeShoppingEvent) ce;
-		String session = se.getSessionID();
-		return session.hashCode() & BITS_OF_IDENTIFIER;
+		String token = se.getToken();
+		return token.hashCode() & BITS_OF_IDENTIFIER;
 	}
 	
 	/*
