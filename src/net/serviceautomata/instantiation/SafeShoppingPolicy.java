@@ -66,7 +66,7 @@ public class SafeShoppingPolicy extends LocalPolicy {
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
 			throws IllegalArgumentException {
 
-		//event.getSessionID();
+		// event.getSessionID();
 		String token = event.getToken();
 		String payerID = event.getPayerID();
 

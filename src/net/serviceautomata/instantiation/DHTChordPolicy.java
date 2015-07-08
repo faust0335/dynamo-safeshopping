@@ -13,8 +13,7 @@ public class DHTChordPolicy extends LocalPolicy {
 	/* Store the pair of token and payerID for the transaction
 	 * to the corresponding sessionID
 	 */
-	private HashMap <String[], String> transactionMap =
-			new HashMap <String[], String> ();
+	private HashMap<String, String> transactionMap = new HashMap<String, String>();
 	
 	private final static int BITS_OF_IDENTIFIER = 63;
 
@@ -115,53 +114,32 @@ public class DHTChordPolicy extends LocalPolicy {
 	 * @param event	The critical event for which a decision is requested.
 	 * @return		The decision made to the coordinator
 	 */
-	// TODO Refactor this
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
 			throws IllegalArgumentException{
-		
-		String sessionID = event.getSessionID();
+
+		//event.getSessionID();
 		String token = event.getToken();
 		String payerID = event.getPayerID();
-		
-		/* 
+
+		/*
 		 * If the HTTP message does not contain the information about payerID
 		 * and token, the transaction will be permitted
 		 */
 		if (token == null && payerID == null) {
 			return SafeShoppingDecision.PERMIT;
-		}
-		/* 
-		 * If the HTTP message does not contain one of payerID and token,
-		 * the transaction will be considered invalid and rejected
-		 */
-		else if ((token != null && payerID == null) ||
-				 (token == null && payerID != null)) {
-			return SafeShoppingDecision.REJECT;
-		}
-		else {
-			String[] pair = new String[2];
-			pair[0] = token;
-			pair[1] = payerID;
-			
-			/* 
+		} else {
+
+			/*
 			 * If the pair of payerID and token for the current session exists
-			 * in the transaction map, and the transaction has succeeded,
-			 * the transaction with the same information will be rejected
+			 * in the transaction map, and the transaction has succeeded, the
+			 * transaction with the same information will be rejected
 			 */
-			if (transactionMap.containsKey(pair) &&
-					transactionMap.get(pair).equals(sessionID)) {
+			if (transactionMap.containsKey(token)) {
 				return SafeShoppingDecision.REJECT;
-			}
-		
-			/* 
-			 * If the pair of payerID and token for the current session does not
-			 * exist in the transaction list, the transaction with such information
-			 * will be recorded and permitted
-			 */
-			if (!transactionMap.containsKey(pair)) {
-				transactionMap.put(pair, sessionID);
+			} else {
+				transactionMap.put(token, payerID);
+				return SafeShoppingDecision.PERMIT;
 			}
 		}
-		return SafeShoppingDecision.PERMIT;
 	}
 }
