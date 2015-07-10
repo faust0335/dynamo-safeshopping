@@ -45,31 +45,10 @@ public class SafeShoppingAdapter extends AbstractService {
 	// ------------------------------------------------------
 	StringBuilder logstr = new StringBuilder();
 
-	/** Set if MIME magic must be used to control server responses MIME types */
-	private static boolean mimemagiccheck = false;
-	private static boolean trustServiceMimeTypePerDefault = true;
-
 	private static boolean initialized = false;
 
 	/** Define HTTP response mime types supported by the service (in RESPMOD) */
 	private static String[] supportedContentTypes;
-
-	/** Define HTTP response codes supported by the service (in RESPMOD) */
-	// static int[] supportedResponseCodes = null;
-
-	/**
-	 * @return Returns the mimemagiccheck.
-	 */
-	public static boolean isMimemagiccheck() {
-		return mimemagiccheck;
-	}
-
-	/**
-	 * @return Returns the trustServiceMimeTypePerDefault.
-	 */
-	public static boolean isTrustServiceMimeTypePerDefault() {
-		return trustServiceMimeTypePerDefault;
-	}
 
 	/**
 	 * @return Returns the supportedContentTypes.
@@ -123,7 +102,7 @@ public class SafeShoppingAdapter extends AbstractService {
 
 	// <------------------------------------------------------------------------->
 	/**
-	 * Create a service thread to proceed server connection
+	 * Create a service thread to process server connection
 	 * 
 	 * @param icapserver
 	 *            ICAP server managing the service
@@ -146,7 +125,6 @@ public class SafeShoppingAdapter extends AbstractService {
 		}
 		// Initialize the sockets for CliSeAu
 		initCliSeAuSocket();
-
 	}
 
 	// <------------------------------------------------------------------------->
@@ -187,12 +165,6 @@ public class SafeShoppingAdapter extends AbstractService {
 				.getString("GreasySpoon.compressibleContentTypes") != null)
 			compressibleContentTypes = ServicesProperties.getString(
 					"GreasySpoon.compressibleContentTypes").split("\\s+");
-		mimemagiccheck = ServicesProperties.getString("GreasySpoon.mimemagic") != null
-				&& ServicesProperties.getBooleanValue("GreasySpoon.mimemagic");
-		if (mimemagiccheck) {
-			if (Log.config())
-				Log.error(Log.CONFIG, "GreasySpoon: MimeMagic enabled");
-		}
 
 		languageCommentsFile = GreasySpoon.confDirectory + File.separator
 				+ ServicesProperties.getString("GreasySpoon.comments");
@@ -514,28 +486,4 @@ public class SafeShoppingAdapter extends AbstractService {
 
 		return earlyResponse(bas);
 	}
-
-	// <------------------------------------------------------------------------->
-
-	// /////////////////////////
-	// /////////////////////////
-	// TOOLS Methods
-	// /////////////////////////
-	// /////////////////////////
-
-	// ---------------------------------------------------------------------------
-	/**
-	 * Give the application absolute path
-	 * 
-	 * @return String the application absolute path
-	 */
-	protected final static String getApplicationPath() {
-		String AppPath = new String();
-		File current = new File("."); // set to the relative path
-		AppPath = current.getAbsolutePath(); // get the real path
-		AppPath = AppPath.substring(0, AppPath.length() - 2); // remove the '\.'
-		AppPath = AppPath + File.separator;
-		return AppPath;
-	}// End getApplicationPath
-		// ---------------------------------------------------------------------------
 }
