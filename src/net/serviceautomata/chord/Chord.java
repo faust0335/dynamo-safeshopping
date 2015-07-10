@@ -22,7 +22,7 @@ public class Chord {
 	 * A node hash map which stores the CliSeAu nodes (as values)
 	 * corresponding to their identifiers (as keys)
 	 */
-	private HashMap<Integer, CliSeAuNode> nodeMap =
+	public HashMap<Integer, CliSeAuNode> nodeMap =
 			new HashMap<Integer, CliSeAuNode>();
 	
 	/**

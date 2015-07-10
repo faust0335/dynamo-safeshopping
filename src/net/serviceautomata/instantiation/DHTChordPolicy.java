@@ -1,5 +1,6 @@
 package net.serviceautomata.instantiation;
 
+import net.serviceautomata.chord.Chord;
 import net.serviceautomata.chord.CliSeAuNode;
 import net.serviceautomata.javacor.CriticalEvent;
 import net.serviceautomata.javacor.DelegationLocPolReturn;
@@ -16,8 +17,10 @@ public class DHTChordPolicy extends LocalPolicy {
 	private HashMap<String, String> transactionMap = new HashMap<String, String>();
 	
 	private final static int BITS_OF_IDENTIFIER = 63;
+	
+	private Chord chord = new Chord();
 
-	/*
+	/**
 	 * Construct a local policy object.
 	 * @param identifier The identifier of the unit using the local policy
 	 */
@@ -36,7 +39,7 @@ public class DHTChordPolicy extends LocalPolicy {
 		return token.hashCode() & BITS_OF_IDENTIFIER;
 	}
 	
-	/*
+	/**
 	 * Handles a request from the local interceptor component.
 	 *
 	 * This method is supposed to be called by the Coordinator for every local
@@ -57,10 +60,14 @@ public class DHTChordPolicy extends LocalPolicy {
 			throws IllegalArgumentException {
 		//compute hashcode and get the least 6 bits as identifier
 		int eventID = makeEventID(ev);
+		
+		int policyID = Integer.parseInt(getIdentifier());
+		chord.insertNode(policyID);
 		//change the Id of the CliSeAu into int type and use it to instantiate CliSeAuNode
-		CliSeAuNode cNode = new CliSeAuNode(Integer.parseInt(getIdentifier()));
+		// CliSeAuNode cNode = new CliSeAuNode(Integer.parseInt(getIdentifier()));
 		//get the responsible id of CliSeAuNode and change it to String
-		String responsible = String.valueOf(cNode.findSuccessor(eventID).getNodeID());
+		int handler = chord.nodeMap.get(policyID).findSuccessor(eventID).getNodeID();
+		String responsible = String.valueOf(handler);
 		
 		if (getIdentifier().equals(responsible)) {
 			// local policy is responsible for deciding
