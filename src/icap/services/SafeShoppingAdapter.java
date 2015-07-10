@@ -473,15 +473,16 @@ public class SafeShoppingAdapter extends AbstractService {
 
 			// Set the html returned to user
 			StringBuilder httpBody = new StringBuilder();
-			httpBody.append("<html><head></head><body><b>403 Forbidden</b>")
+			httpBody.append("<html><head></head>\r\n<body><b>403 Forbidden</b>")
 					.append("You are not allowed to use the same token more than once!</body></html>");
 
 			// Define header offset
-			icapHeader.append(httpHeader.length() + httpBody.length()).append(
-					CRLF);
 			httpHeader.append("Content-Length: ").append(httpBody.length())
 					.append(CRLF).append("Content-Type: text/html")
 					.append(CRLF);
+
+			icapHeader.append(httpHeader.length() + httpBody.length()).append(
+					CRLF);
 
 			// Set if connection is persistent
 			if (server.useKeepAliveConnections()) {
