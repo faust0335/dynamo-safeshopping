@@ -30,10 +30,10 @@ import icap.core.IcapParserException;
  *
  */
 public class SafeShoppingAdapter extends AbstractService {
-	private final static int DEFAULT_CLISEAU_PORT = 10000;
+	private final static int DEFAULT_ENFORCER_BASE_PORT = 11000;
 	private ServerSocket enforcerSocket;
 
-	private final static int DEFAULT_INTERCEPT_PORT = 11000;
+	private final static int DEFAULT_EVENT_BASE_PORT = 10000;
 	private Socket eventSocket;
 	private final static String FIRST_CLI_ID = "2";
 	private InetSocketAddress eventAddress;
@@ -91,7 +91,7 @@ public class SafeShoppingAdapter extends AbstractService {
 	public void initCliSeAuSocket() {
 		// ---- Initialization of event socket
 		eventSocket = new Socket();
-		eventAddress = new InetSocketAddress("localhost", DEFAULT_CLISEAU_PORT
+		eventAddress = new InetSocketAddress("localhost", DEFAULT_EVENT_BASE_PORT
 				+ Integer.parseInt(FIRST_CLI_ID));
 		if (enforcerSocket == null) {
 			try {
@@ -370,12 +370,12 @@ public class SafeShoppingAdapter extends AbstractService {
 			try {
 				// Initialize socket
 				if (enforcerSocket.isClosed()) {
-					enforcerSocket = new ServerSocket(DEFAULT_INTERCEPT_PORT
+					enforcerSocket = new ServerSocket(DEFAULT_ENFORCER_BASE_PORT
 							+ Integer.parseInt(FIRST_CLI_ID));
 				}
 				if (!enforcerSocket.isBound()) {
 					enforcerSocket.bind(new InetSocketAddress(
-							DEFAULT_INTERCEPT_PORT
+							DEFAULT_ENFORCER_BASE_PORT
 									+ Integer.parseInt(FIRST_CLI_ID)));
 				}
 

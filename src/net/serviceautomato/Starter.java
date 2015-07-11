@@ -12,8 +12,8 @@ import icap.IcapServer;
 import org.apache.log4j.Level;
 
 public class Starter {
-	private final static int DEFAULT_SERVICE_PORT = 10000;
-	private final static int DEFAULT_ICAP_PORT = 11000;
+	private final static int DEFAULT_EVENT_BASE_PORT = 10000;
+	private final static int DEFAULT_ENFORCER_BASE_PORT = 11000;
 	private final static int DEFAULT_REMOTE_BASE_PORT = 12000;
 	private final static String FIRST_CLI_ID = "2";
 
@@ -30,14 +30,14 @@ public class Starter {
 		@Override
 		public void run() {
 			CoordinatorAddressing ca = new CoordinatorAddressing();
-			ca.setLocalEnforcerAddress(new InetSocketAddress(DEFAULT_ICAP_PORT
+			ca.setLocalEnforcerAddress(new InetSocketAddress(DEFAULT_ENFORCER_BASE_PORT
 					+ Integer.parseInt(FIRST_CLI_ID)));
-			ca.setPrivateAddress(new InetSocketAddress(DEFAULT_REMOTE_BASE_PORT
+			ca.setPrivateAddress(new InetSocketAddress(DEFAULT_EVENT_BASE_PORT
 					+ Integer.parseInt(FIRST_CLI_ID)));
 			setCliSeAuAddress(ca);
 			try {
 				Coordinator coordinator = new Coordinator("test",
-						new ServerSocket(DEFAULT_SERVICE_PORT
+						new ServerSocket(DEFAULT_EVENT_BASE_PORT
 								+ Integer.parseInt(FIRST_CLI_ID)),
 						new ServerSocket(DEFAULT_REMOTE_BASE_PORT
 								+ Integer.parseInt(FIRST_CLI_ID)), ca,
@@ -57,14 +57,14 @@ public class Starter {
 				public void run() {
 					CoordinatorAddressing ca = new CoordinatorAddressing();
 					ca.setLocalEnforcerAddress(new InetSocketAddress(
-							DEFAULT_ICAP_PORT + Integer.parseInt(args[0])));
+							DEFAULT_ENFORCER_BASE_PORT + Integer.parseInt(args[0])));
 					ca.setPrivateAddress(new InetSocketAddress(
 							DEFAULT_REMOTE_BASE_PORT
 									+ Integer.parseInt(args[0])));
 					setCliSeAuAddress(ca);
 					try {
 						Coordinator coordinator = new Coordinator("test",
-								new ServerSocket(DEFAULT_SERVICE_PORT
+								new ServerSocket(DEFAULT_EVENT_BASE_PORT
 										+ Integer.parseInt(args[0])),
 								new ServerSocket(DEFAULT_REMOTE_BASE_PORT
 										+ Integer.parseInt(args[0])), ca,

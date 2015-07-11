@@ -1,7 +1,6 @@
 package net.serviceautomata.instantiation;
 
 import net.serviceautomata.chord.Chord;
-import net.serviceautomata.chord.CliSeAuNode;
 import net.serviceautomata.javacor.CriticalEvent;
 import net.serviceautomata.javacor.DelegationLocPolReturn;
 import net.serviceautomata.javacor.DelegationReqResp;
@@ -63,10 +62,10 @@ public class DHTChordPolicy extends LocalPolicy {
 			throws IllegalArgumentException {
 		//compute hashcode and get the least 6 bits as identifier
 		int eventID = makeEventID(ev);
+		System.out.println("Event Id: " + eventID);
 		
 		int policyID = Integer.parseInt(getIdentifier());
-		
-		
+		System.out.println("Policy Id: " + policyID);
 		
 		//change the Id of the CliSeAu into int type and use it to instantiate CliSeAuNode
 		// CliSeAuNode cNode = new CliSeAuNode(Integer.parseInt(getIdentifier()));
