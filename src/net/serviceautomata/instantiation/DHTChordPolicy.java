@@ -19,6 +19,8 @@ public class DHTChordPolicy extends LocalPolicy {
 	private final static int BITS_OF_IDENTIFIER = 63;
 	
 	private Chord chord = new Chord();
+	
+	private final Integer[] initIDArray = {2, 7, 8, 29, 33, 37, 48, 51, 60, 63};
 
 	/**
 	 * Construct a local policy object.
@@ -26,6 +28,7 @@ public class DHTChordPolicy extends LocalPolicy {
 	 */
 	public DHTChordPolicy(final String identifier) {
 		super(identifier);
+		chord.createRing(initIDArray);
 	}
 	
 	/**
@@ -62,7 +65,9 @@ public class DHTChordPolicy extends LocalPolicy {
 		int eventID = makeEventID(ev);
 		
 		int policyID = Integer.parseInt(getIdentifier());
-		chord.insertNode(policyID);
+		
+		
+		
 		//change the Id of the CliSeAu into int type and use it to instantiate CliSeAuNode
 		// CliSeAuNode cNode = new CliSeAuNode(Integer.parseInt(getIdentifier()));
 		//get the responsible id of CliSeAuNode and change it to String
