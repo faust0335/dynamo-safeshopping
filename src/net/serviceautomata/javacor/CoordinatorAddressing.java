@@ -133,11 +133,7 @@ public class CoordinatorAddressing {
 			throw new IllegalArgumentException("Destination identifier unknown");
 		}
 		Socket result = new Socket();
-		try {
-			result.connect(destAddr);
-		} catch (Exception e) {
-			// TODO Adding exception handling here
-		}
+		result.connect(destAddr);
 		return result;
 	}
 
