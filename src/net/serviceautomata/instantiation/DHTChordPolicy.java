@@ -10,44 +10,50 @@ import net.serviceautomata.javacor.LocalPolicyResponse;
 import java.util.HashMap;
 
 public class DHTChordPolicy extends LocalPolicy {
-	/* Store the pair of token and payerID for the transaction
-	 * to the corresponding sessionID
+	/*
+	 * Store the pair of token and payerID for the transaction to the
+	 * corresponding sessionID
 	 */
 	private HashMap<String, String> transactionMap = new HashMap<String, String>();
-	
+
 	private final static int BITS_OF_IDENTIFIER = 63;
-	
+
 	private Chord chord = new Chord();
-	
-	private final Integer[] initIDArray = {2};
+
+	private final Integer[] initIDArray = { 2 };
 
 	/**
 	 * Construct a local policy object.
-	 * @param identifier The identifier of the unit using the local policy
+	 * 
+	 * @param identifier
+	 *            The identifier of the unit using the local policy
 	 */
 	public DHTChordPolicy(final String identifier) {
 		super(identifier);
 		chord.createRing(initIDArray);
 	}
-	
+
 	/**
 	 * Getter of the chord object
+	 * 
 	 * @return a chord instance
 	 */
 	public Chord getChord() {
 		return chord;
 	}
+
 	/**
-	 * compute identifier with the least 6 bits of the sessionID`s hashcode 
+	 * compute identifier with the least 6 bits of the sessionID`s hashcode
+	 * 
 	 * @param ce
 	 * @return
 	 */
-	protected int makeEventID(CriticalEvent ce){
+	protected int makeEventID(CriticalEvent ce) {
 		SafeShoppingEvent se = (SafeShoppingEvent) ce;
 		String token = se.getToken();
 		return token.hashCode() & BITS_OF_IDENTIFIER;
 	}
-	
+
 	/**
 	 * Handles a request from the local interceptor component.
 	 *
@@ -59,81 +65,95 @@ public class DHTChordPolicy extends LocalPolicy {
 	 * DelegationLocPolReturn. The method may update the state of the local
 	 * policy object during the process of handling the request.
 	 *
-	 * @param event	The critical event for which a decision is requested.
-	 * @return		The response to the coordinator
-	 * @exception	IllegalArgumentException Can be thrown if event is
-	 * 				of the wrong sub-type of CriticalEvent
+	 * @param event
+	 *            The critical event for which a decision is requested.
+	 * @return The response to the coordinator
+	 * @exception IllegalArgumentException
+	 *                Can be thrown if event is of the wrong sub-type of
+	 *                CriticalEvent
 	 */
 	@Override
 	public final LocalPolicyResponse localRequest(CriticalEvent ev)
 			throws IllegalArgumentException {
-		//compute hashcode and get the least 6 bits as identifier
+		// compute hashcode and get the least 6 bits as identifier
 		int eventID = makeEventID(ev);
-		
+
 		int policyID = Integer.parseInt(getIdentifier());
-		
-		//change the Id of the CliSeAu into int type and use it to instantiate CliSeAuNode
-		// CliSeAuNode cNode = new CliSeAuNode(Integer.parseInt(getIdentifier()));
-		//get the responsible id of CliSeAuNode and change it to String
-		int handler = chord.nodeMap.get(policyID).findSuccessor(eventID).getNodeID();
+
+		// change the Id of the CliSeAu into int type and use it to instantiate
+		// CliSeAuNode
+		// CliSeAuNode cNode = new
+		// CliSeAuNode(Integer.parseInt(getIdentifier()));
+		// get the responsible id of CliSeAuNode and change it to String
+		int handler = chord.nodeMap.get(policyID).findSuccessor(eventID)
+				.getNodeID();
 		String responsible = String.valueOf(handler);
-		
+		System.out.println("Event ID: " + eventID
+				+ "\nResponsible CliSeAu ID: " + responsible);
+
 		if (getIdentifier().equals(responsible)) {
 			// local policy is responsible for deciding
-			return makeDecision((SafeShoppingEvent)ev);
+			return makeDecision((SafeShoppingEvent) ev);
 		} else {
 			// must forward to remote CliSeAu unit
-			SafeShoppingDelegationRequest dr = new SafeShoppingDelegationRequest((SafeShoppingEvent)ev, getIdentifier(), responsible);
+			SafeShoppingDelegationRequest dr = new SafeShoppingDelegationRequest(
+					(SafeShoppingEvent) ev, getIdentifier(), responsible);
 			return new DelegationLocPolReturn(responsible, dr);
 		}
 	}
-	
+
 	@Override
-	public LocalPolicyResponse remoteRequest(DelegationReqResp dr) throws IllegalArgumentException {
+	public LocalPolicyResponse remoteRequest(DelegationReqResp dr)
+			throws IllegalArgumentException {
 		if (dr instanceof SafeShoppingDelegationRequest) {
-			SafeShoppingDelegationRequest sReq = (SafeShoppingDelegationRequest)dr;
+			SafeShoppingDelegationRequest sReq = (SafeShoppingDelegationRequest) dr;
 			if (getIdentifier().equals(sReq.getDestID())) {
 				// handle request locally and return DirectDelegationResponse
-				SafeShoppingDecision sd = makeDecision((SafeShoppingEvent)sReq.getEvent());
+				SafeShoppingDecision sd = makeDecision((SafeShoppingEvent) sReq
+						.getEvent());
 				if (getIdentifier().equals(sReq.getSourceID())) {
 					// the local unit originated the request --> deliver locally
 					return sd;
 				} else {
 					// the request originated remotely --> send response back
 					return new DelegationLocPolReturn(sReq.getSourceID(),
-							new SafeShoppingDelegationResponse(sd, getIdentifier(), sReq.getSourceID()));
+							new SafeShoppingDelegationResponse(sd,
+									getIdentifier(), sReq.getSourceID()));
 				}
 			} else {
 				// forward request
 				return new DelegationLocPolReturn(sReq.getDestID(), sReq);
 			}
 		} else if (dr instanceof SafeShoppingDelegationResponse) {
-			SafeShoppingDelegationResponse sResp = (SafeShoppingDelegationResponse)dr;
+			SafeShoppingDelegationResponse sResp = (SafeShoppingDelegationResponse) dr;
 			if (getIdentifier().equals(sResp.getDestID())) {
 				// response is for local unit
-				// and the response already contains the enforcement decision to return
+				// and the response already contains the enforcement decision to
+				// return
 				return sResp.getDecision();
 			} else {
 				// forward response
 				return new DelegationLocPolReturn(sResp.getDestID(), sResp);
 			}
 		} else {
-			throw new IllegalArgumentException("Event for remote request of wrong type");
+			throw new IllegalArgumentException(
+					"Event for remote request of wrong type");
 		}
 	}
 
-
-	/* 
-	 * According to the current event one can decide whether the current HTTP message
-	 * should continue to be forwarded to the web store from the client and vice versa
+	/*
+	 * According to the current event one can decide whether the current HTTP
+	 * message should continue to be forwarded to the web store from the client
+	 * and vice versa
 	 * 
-	 * @param event	The critical event for which a decision is requested.
-	 * @return		The decision made to the coordinator
+	 * @param event The critical event for which a decision is requested.
+	 * 
+	 * @return The decision made to the coordinator
 	 */
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
-			throws IllegalArgumentException{
+			throws IllegalArgumentException {
 
-		//event.getSessionID();
+		// event.getSessionID();
 		String token = event.getToken();
 		String payerID = event.getPayerID();
 
