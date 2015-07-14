@@ -2,7 +2,6 @@ package net.serviceautomato;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,11 +22,6 @@ public class Starter {
 
 	public static void setCliSeAuAddress(CoordinatorAddressing ca,
 			DHTChordPolicy policy) {
-		/*
-		 * String[] port = { "2", "7", "8", "29", "33", "37", "48", "51", "60",
-		 * "63" }; for (String p : port) { ca.setAddress(p, new
-		 * InetSocketAddress(DEFAULT_REMOTE_BASE_PORT + Integer.parseInt(p))); }
-		 */
 		ca.setAddress(FIRST_CLI_ID, new InetSocketAddress(
 				DEFAULT_REMOTE_BASE_PORT + Integer.parseInt(FIRST_CLI_ID)));
 		try {
@@ -62,70 +56,44 @@ public class Starter {
 		}
 	}
 
-	private static Thread CliSeAuInstance = new Thread() {
-		@Override
-		public void run() {
-			CoordinatorAddressing ca = new CoordinatorAddressing();
-			ca.setLocalEnforcerAddress(new InetSocketAddress(
-					DEFAULT_ENFORCER_BASE_PORT + Integer.parseInt(FIRST_CLI_ID)));
-			ca.setPrivateAddress(new InetSocketAddress(DEFAULT_EVENT_BASE_PORT
-					+ Integer.parseInt(FIRST_CLI_ID)));
-			DHTChordPolicy dhtPolicy = new DHTChordPolicy(FIRST_CLI_ID);
-			setCliSeAuAddress(ca, dhtPolicy);
-			try {
-				Coordinator coordinator = new Coordinator("test",
-						new ServerSocket(DEFAULT_EVENT_BASE_PORT
-								+ Integer.parseInt(FIRST_CLI_ID)),
-						new ServerSocket(DEFAULT_REMOTE_BASE_PORT
-								+ Integer.parseInt(FIRST_CLI_ID)), ca,
-						dhtPolicy, Level.DEBUG);
-				coordinator.run();
-			} catch (IOException e) {
-				e.printStackTrace();
+	private static Thread CliSeAuInstance;
+
+	private static void startCli(boolean isMaster, int port) {
+		CliSeAuInstance = new Thread() {
+			@Override
+			public void run() {
+				CoordinatorAddressing ca = new CoordinatorAddressing();
+				ca.setLocalEnforcerAddress(new InetSocketAddress(
+						DEFAULT_ENFORCER_BASE_PORT
+								+ Integer.parseInt(FIRST_CLI_ID)));
+				ca.setPrivateAddress(new InetSocketAddress(
+						DEFAULT_EVENT_BASE_PORT
+								+ Integer.parseInt(FIRST_CLI_ID)));
+				DHTChordPolicy dhtPolicy = new DHTChordPolicy(FIRST_CLI_ID);
+				if (isMaster) {
+					setCliSeAuAddress(ca, dhtPolicy);
+				}
+				try {
+					Coordinator coordinator = new Coordinator("test",
+							new ServerSocket(DEFAULT_EVENT_BASE_PORT
+									+ port),
+							new ServerSocket(DEFAULT_REMOTE_BASE_PORT
+									+ port), ca,
+							dhtPolicy, Level.DEBUG);
+					coordinator.run();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		}
-	};
+		};
+	}
 
 	public static void main(String[] args) {
-		Thread cliThread;
 		if (args.length != 0) {
-			cliThread = new Thread() {
-				@Override
-				public void run() {
-					CoordinatorAddressing ca = new CoordinatorAddressing();
-					ca.setLocalEnforcerAddress(new InetSocketAddress(
-							DEFAULT_ENFORCER_BASE_PORT
-									+ Integer.parseInt(args[0])));
-					ca.setPrivateAddress(new InetSocketAddress(
-							DEFAULT_REMOTE_BASE_PORT
-									+ Integer.parseInt(args[0])));
-					// setCliSeAuAddress(ca);
-					try {
-						Coordinator coordinator = new Coordinator("test",
-								new ServerSocket(DEFAULT_EVENT_BASE_PORT
-										+ Integer.parseInt(args[0])),
-								new ServerSocket(DEFAULT_REMOTE_BASE_PORT
-										+ Integer.parseInt(args[0])), ca,
-								new DHTChordPolicy(args[0]), Level.DEBUG);
-						// notify master about the new joined node
-						Socket s = new Socket();
-						s.connect(new InetSocketAddress(DEFAULT_CLI_PORT));
-						ObjectOutputStream oos = new ObjectOutputStream(
-								s.getOutputStream());
-						oos.writeObject(new String(args[0]));
-						s.close();
-						// Any slave should know the master
-						ca.setAddress(FIRST_CLI_ID,
-								new InetSocketAddress(DEFAULT_REMOTE_BASE_PORT
-										+ Integer.parseInt(FIRST_CLI_ID)));
-						coordinator.run();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			};
-			cliThread.start();
+			startCli(false, Integer.parseInt(args[0]));
+			CliSeAuInstance.start();
 		} else {
+			startCli(true, Integer.parseInt(FIRST_CLI_ID));
 			CliSeAuInstance.start();
 			IcapServer.main(null);
 		}
