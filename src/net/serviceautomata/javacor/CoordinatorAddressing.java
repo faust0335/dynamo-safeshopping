@@ -111,7 +111,7 @@ public class CoordinatorAddressing {
 		SocketAddress result = addresses.get(identifier);
 		if (result == null)
 			throw new IllegalArgumentException("Destination identifier '"
-					+ identifier + "'unknown");
+					+ identifier + "' unknown");
 		return result;
 	}
 
