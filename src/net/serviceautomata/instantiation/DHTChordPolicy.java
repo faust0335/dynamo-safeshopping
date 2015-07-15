@@ -8,18 +8,40 @@ import net.serviceautomata.javacor.LocalPolicy;
 import net.serviceautomata.javacor.LocalPolicyResponse;
 
 import java.util.HashMap;
-
+/**
+ * The class DHTChordPolicy extends its abstract parent class LocalPolicy to
+ * execute more detailed policies in each CliSeAu node. In this class we utilize
+ * a hash map to store all pairs of token and payer ID in the succeeded
+ * transactions to avoid repeated usage of them. Besides that we also establish
+ * an initial array to appoint the first CliSeAu node(s) to be started in the
+ * process of service initialization. If the event ID does not match the ID of
+ * local policy, in other words, the ID of the CliSeAu node, it will send the
+ * delegation request of handling the event to another one after the thread starts
+ * it, and wait for its response in some time. When a local or remote decision is
+ * made, the enforcer will take the measures, permitting or suppressing.
+ * 
+ * @author Liu, Yi (Main)
+ * @author Xu, Yinhua (Coordinator)
+ *
+ */
 public class DHTChordPolicy extends LocalPolicy {
-	/*
+	/**
 	 * Store the pair of token and payerID for the transaction to the
-	 * corresponding sessionID
+	 * corresponding transaction
 	 */
 	private HashMap<String, String> transactionMap = new HashMap<String, String>();
-
+	/**
+	 * When a hash code h & BITS_OF_IDENTIFIER, the last 6 bits will be obtained
+	 */
 	private final static int BITS_OF_IDENTIFIER = 63;
-
+	/**
+	 * A Chord ring to record the topology of all the CliSeAu nodes
+	 */
 	private Chord chord = new Chord();
-
+	
+	/**
+	 * The identifier(s) of the initial CliSeAu node(s)
+	 */
 	private final Integer[] initIDArray = { 2 };
 
 	/**
@@ -45,8 +67,8 @@ public class DHTChordPolicy extends LocalPolicy {
 	/**
 	 * compute identifier with the least 6 bits of the sessionID`s hashcode
 	 * 
-	 * @param ce
-	 * @return
+	 * @param ce An input critical event
+	 * @return The last 6 bits of the hash code of the token ID as the event ID
 	 */
 	protected int makeEventID(CriticalEvent ce) {
 		SafeShoppingEvent se = (SafeShoppingEvent) ce;
@@ -65,12 +87,8 @@ public class DHTChordPolicy extends LocalPolicy {
 	 * DelegationLocPolReturn. The method may update the state of the local
 	 * policy object during the process of handling the request.
 	 *
-	 * @param event
-	 *            The critical event for which a decision is requested.
+	 * @param ev The critical event for which a decision is requested.
 	 * @return The response to the coordinator
-	 * @exception IllegalArgumentException
-	 *                Can be thrown if event is of the wrong sub-type of
-	 *                CriticalEvent
 	 */
 	@Override
 	public final LocalPolicyResponse localRequest(CriticalEvent ev)
@@ -80,11 +98,7 @@ public class DHTChordPolicy extends LocalPolicy {
 
 		int policyID = Integer.parseInt(getIdentifier());
 
-		// change the Id of the CliSeAu into int type and use it to instantiate
-		// CliSeAuNode
-		// CliSeAuNode cNode = new
-		// CliSeAuNode(Integer.parseInt(getIdentifier()));
-		// get the responsible id of CliSeAuNode and change it to String
+		// get the responsible ID of CliSeAuNode and change it to String
 		int handler = chord.nodeMap.get(policyID).findSuccessor(eventID)
 				.getNodeID();
 		String responsible = String.valueOf(handler);
@@ -101,7 +115,7 @@ public class DHTChordPolicy extends LocalPolicy {
 			return new DelegationLocPolReturn(responsible, dr);
 		}
 	}
-
+	
 	@Override
 	public LocalPolicyResponse remoteRequest(DelegationReqResp dr)
 			throws IllegalArgumentException {
@@ -115,15 +129,16 @@ public class DHTChordPolicy extends LocalPolicy {
 			} else {
 				// forward request
 				// TODO remove after test
-				System.out.println("id: " + getIdentifier() + "destId: " + sReq.getDestID());
+				System.out.println("ID: " + getIdentifier() + "Destination ID: " + sReq.getDestID());
 				return new DelegationLocPolReturn(sReq.getDestID(), sReq);
 			}
 		} else if (dr instanceof SafeShoppingDelegationResponse) {
 			SafeShoppingDelegationResponse sResp = (SafeShoppingDelegationResponse) dr;
 			if (getIdentifier().equals(sResp.getDestID())) {
-				// response is for local unit
-				// and the response already contains the enforcement decision to
-				// return
+				/* 
+				 * response is for local unit and the response already contains
+				 * the enforcement decision to return
+				 */
 				return sResp.getDecision();
 			} else {
 				// forward response
@@ -131,11 +146,11 @@ public class DHTChordPolicy extends LocalPolicy {
 			}
 		} else {
 			throw new IllegalArgumentException(
-					"Event for remote request of wrong type");
+					"Event for Remote Request of Wrong Type");
 		}
 	}
 
-	/*
+	/**
 	 * According to the current event one can decide whether the current HTTP
 	 * message should continue to be forwarded to the web store from the client
 	 * and vice versa

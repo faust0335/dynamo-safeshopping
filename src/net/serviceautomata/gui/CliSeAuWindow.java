@@ -98,7 +98,7 @@ class CliSeAuFrame extends JFrame {
 
 			addressLabel = new JLabel("NODE ADDRESS");
 			panel.add(addressLabel);
-			displayAddress = new JTextField("0.0.0.0:0");
+			displayAddress = new JTextField("localhost");
 			panel.add(displayAddress);
 
 			identifierLabel = new JLabel("NODE IDENTIFIER (INTEGER)");

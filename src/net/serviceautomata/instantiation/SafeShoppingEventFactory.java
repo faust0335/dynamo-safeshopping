@@ -4,22 +4,27 @@ import net.serviceautomata.javatarget.CriticalEventFactory;
 
 
 public class SafeShoppingEventFactory implements CriticalEventFactory {
-	/*createEvent method take the httpMessage from SafeShoppingServiceAutomata
+	
+	/**
+	 * createEvent method take the httpMessage from SafeShoppingServiceAutomata
 	 * as parameter and extract the substring: token from it. The token is
-	 *  used to instantiate a SafeShoppingEvent class 
+	 * used to instantiate a SafeShoppingEvent class 
+	 *
+	 * @param httpMessage	HTTP message in the type of string
+	 * @return				The new SafeShoppingEvent object
 	 */
-	
-	
+	 
 	public static SafeShoppingEvent createEvent(String httpMessage){
 		String token = getToken(httpMessage);
 		String payerID = getPayerID(httpMessage);
-		String sessionID = getSessionID(httpMessage);
-		boolean paySucceed = getPaySucceed(httpMessage);
-		return new SafeShoppingEvent(token, payerID, sessionID, paySucceed );
+		return new SafeShoppingEvent(token, payerID);
 	}
 	
-	/*
-	 * getToken method is used to extract the token from the http message
+	/**
+	 * getToken method is used to extract the token from the HTTP message
+	 * 
+	 * @param httpMessage HTTP message in the type of string
+	 * @return the string of the token
 	 */
 	protected static String getToken(String httpMessage){
 		if(!httpMessage.isEmpty() && httpMessage.contains("token=") &&
@@ -32,8 +37,11 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 			return null;
 	}
 	
-	/*
-	 * getPayerID method is used to extract the payerID from the http message
+	/**
+	 * getPayerID method is used to extract the payerID from the HTTP message
+	 * 
+	 * @param httpMessage	HTTP message in the type of string
+	 * @return 				The string of the payer identifier
 	 */
 	protected static String getPayerID(String httpMessage){
 		if(!httpMessage.isEmpty() &&
@@ -45,23 +53,5 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 		}
 		else
 			return null;
-	}
-	
-	//getSessionID method is used to extract the sessionID from the http message
-	protected static String getSessionID(String httpMessage){
-		if(!httpMessage.isEmpty() && httpMessage.contains("sessionid")){
-			String sessionid = httpMessage.substring(httpMessage.indexOf("sessionid"));
-			return(sessionid.substring(9));
-		}
-		else
-			return null;
-	}
-	
-	protected static boolean getPaySucceed(String httpMessage){
-		if(!httpMessage.isEmpty() && httpMessage.contains("success")){
-			return true;
-		}
-		else
-			return false;
 	}
 }
