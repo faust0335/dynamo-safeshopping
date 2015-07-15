@@ -111,17 +111,11 @@ public class DHTChordPolicy extends LocalPolicy {
 				// handle request locally and return DirectDelegationResponse
 				SafeShoppingDecision sd = makeDecision((SafeShoppingEvent) sReq
 						.getEvent());
-				if (getIdentifier().equals(sReq.getSourceID())) {
-					// the local unit originated the request --> deliver locally
-					return sd;
-				} else {
-					// the request originated remotely --> send response back
-					return new DelegationLocPolReturn(sReq.getSourceID(),
-							new SafeShoppingDelegationResponse(sd,
-									getIdentifier(), sReq.getSourceID()));
-				}
+				return sd;
 			} else {
 				// forward request
+				// TODO remove after test
+				System.out.println("id: " + getIdentifier() + "destId: " + sReq.getDestID());
 				return new DelegationLocPolReturn(sReq.getDestID(), sReq);
 			}
 		} else if (dr instanceof SafeShoppingDelegationResponse) {
