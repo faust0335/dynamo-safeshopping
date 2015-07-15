@@ -91,8 +91,8 @@ public class SafeShoppingAdapter extends AbstractService {
 	public void initCliSeAuSocket() {
 		// ---- Initialization of event socket
 		eventSocket = new Socket();
-		eventAddress = new InetSocketAddress("localhost", DEFAULT_EVENT_BASE_PORT
-				+ Integer.parseInt(Starter.getPort()));
+		eventAddress = new InetSocketAddress("localhost",
+				DEFAULT_EVENT_BASE_PORT + Integer.parseInt(Starter.getPort()));
 		if (enforcerSocket == null) {
 			try {
 				enforcerSocket = new ServerSocket();
@@ -370,8 +370,9 @@ public class SafeShoppingAdapter extends AbstractService {
 			try {
 				// Initialize socket
 				if (enforcerSocket.isClosed()) {
-					enforcerSocket = new ServerSocket(DEFAULT_ENFORCER_BASE_PORT
-							+ Integer.parseInt(Starter.getPort()));
+					enforcerSocket = new ServerSocket(
+							DEFAULT_ENFORCER_BASE_PORT
+									+ Integer.parseInt(Starter.getPort()));
 				}
 				if (!enforcerSocket.isBound()) {
 					enforcerSocket.bind(new InetSocketAddress(
@@ -456,18 +457,16 @@ public class SafeShoppingAdapter extends AbstractService {
 
 			// Set the html returned to user
 			StringBuilder httpBody = new StringBuilder();
-			httpBody.append("<html><head></head>\r\n<body><b>403 Forbidden</b>")
-					.append("You are not allowed to use the same token more than once!</body></html>");
+			httpBody.append("<h1>403 Forbidden</h1><br>")
+					.append("You are not allowed to use the same token more than once!");
 
 			// Define header offset
 			httpHeader.append("Content-Length: ").append(httpBody.length())
 					.append(CRLF).append("Content-Type: text/html")
 					.append(CRLF);
 
-			// icapHeader.append(httpHeader.length() +
-			// httpBody.length()).append(
-			// CRLF);
-			icapHeader.append(httpHeader.length() + "").append(CRLF);
+			icapHeader.append(httpHeader.length() + httpBody.length()).append(
+					CRLF);
 
 			// Set if connection is persistent
 			if (server.useKeepAliveConnections()) {
@@ -477,8 +476,9 @@ public class SafeShoppingAdapter extends AbstractService {
 				this.closeConnection();
 			}
 
-			bas.write((icapHeader.toString() + httpHeader.toString())
-					.getBytes());
+
+			bas.write((icapHeader.toString()).getBytes());
+			bas.write(httpHeader.toString().getBytes());
 
 			// TODO Testing ICAP Response
 			System.out.println(icapHeader.toString());
