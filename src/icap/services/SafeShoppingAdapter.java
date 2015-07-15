@@ -18,6 +18,7 @@ import java.util.Properties;
 import net.serviceautomata.instantiation.SafeShoppingDecision;
 import net.serviceautomata.instantiation.SafeShoppingEvent;
 import net.serviceautomata.instantiation.SafeShoppingEventFactory;
+import net.serviceautomato.Starter;
 import tools.logger.Log;
 import icap.IcapServer;
 import icap.core.AbstractService;
@@ -35,7 +36,6 @@ public class SafeShoppingAdapter extends AbstractService {
 
 	private final static int DEFAULT_EVENT_BASE_PORT = 21000;
 	private Socket eventSocket;
-	private final static String FIRST_CLI_ID = "2";
 	private InetSocketAddress eventAddress;
 
 	private Socket CliClientSocket;
@@ -92,7 +92,7 @@ public class SafeShoppingAdapter extends AbstractService {
 		// ---- Initialization of event socket
 		eventSocket = new Socket();
 		eventAddress = new InetSocketAddress("localhost", DEFAULT_EVENT_BASE_PORT
-				+ Integer.parseInt(FIRST_CLI_ID));
+				+ Integer.parseInt(Starter.getPort()));
 		if (enforcerSocket == null) {
 			try {
 				enforcerSocket = new ServerSocket();
@@ -371,12 +371,12 @@ public class SafeShoppingAdapter extends AbstractService {
 				// Initialize socket
 				if (enforcerSocket.isClosed()) {
 					enforcerSocket = new ServerSocket(DEFAULT_ENFORCER_BASE_PORT
-							+ Integer.parseInt(FIRST_CLI_ID));
+							+ Integer.parseInt(Starter.getPort()));
 				}
 				if (!enforcerSocket.isBound()) {
 					enforcerSocket.bind(new InetSocketAddress(
 							DEFAULT_ENFORCER_BASE_PORT
-									+ Integer.parseInt(FIRST_CLI_ID)));
+									+ Integer.parseInt(Starter.getPort())));
 				}
 
 				if (eventSocket.isClosed()) {
@@ -388,7 +388,7 @@ public class SafeShoppingAdapter extends AbstractService {
 						eventSocket.getOutputStream());
 				oos.writeObject(event);
 
-				// Receiving enforcement
+				// Receiving decision
 				CliClientSocket = enforcerSocket.accept();
 				ObjectInputStream ois = new ObjectInputStream(
 						CliClientSocket.getInputStream());
