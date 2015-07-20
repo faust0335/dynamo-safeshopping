@@ -8,25 +8,39 @@ import net.serviceautomata.javacor.LocalPolicy;
 import net.serviceautomata.javacor.LocalPolicyResponse;
 
 import java.util.HashMap;
-
+/**
+ * This class construct a policy which can accept the SafeShoppingEvent
+ * as request and convert it to a number between 0 and 63. 
+ * Then we use the Chord algorithm to find the responsible CliSeAu node.
+ * And handle the local request and remote request.
+ * Finally gives a corresponding decision back to coordinator.
+ * 
+ * @author Liu, Yi
+ * 	
+ */
 public class DHTChordPolicy extends LocalPolicy {
-	/*
-	 * Store the pair of token and payerID for the transaction to the
-	 * corresponding sessionID
+	/**
+	 * Store the pair of token and payerID for the transaction
 	 */
 	private HashMap<String, String> transactionMap = new HashMap<String, String>();
-
+	/**
+	 *  The bits limitation of identifier.
+	 */
 	private final static int BITS_OF_IDENTIFIER = 63;
-
+	/**
+	 * An instantiation of class Chord
+	 */
 	private Chord chord = new Chord();
-
+	/**
+	 * An Integer array is used to initialize the first CliSeAu node
+	 */
 	private final Integer[] initIDArray = { 2 };
 
 	/**
 	 * Construct a local policy object.
 	 * 
-	 * @param identifier
-	 *            The identifier of the unit using the local policy
+	 * @param identifier 
+	 * 					The identifier of the unit using the local policy
 	 */
 	public DHTChordPolicy(final String identifier) {
 		super(identifier);
@@ -43,10 +57,10 @@ public class DHTChordPolicy extends LocalPolicy {
 	}
 
 	/**
-	 * compute identifier with the least 6 bits of the sessionID`s hashcode
+	 * compute identifier with the least 6 bits of the token`s hashcode
 	 * 
-	 * @param ce
-	 * @return
+	 * @param ce the critical event
+	 * @return the number between 0 and 63 as event ID
 	 */
 	protected int makeEventID(CriticalEvent ce) {
 		SafeShoppingEvent se = (SafeShoppingEvent) ce;
@@ -77,17 +91,18 @@ public class DHTChordPolicy extends LocalPolicy {
 			throws IllegalArgumentException {
 		// compute hashcode and get the least 6 bits as identifier
 		int eventID = makeEventID(ev);
-
+		// change the Id of the CliSeAu into int type
 		int policyID = Integer.parseInt(getIdentifier());
 
-		// change the Id of the CliSeAu into int type and use it to instantiate
-		// CliSeAuNode
-		// CliSeAuNode cNode = new
-		// CliSeAuNode(Integer.parseInt(getIdentifier()));
-		// get the responsible id of CliSeAuNode and change it to String
+		
+		/* get the responsible id of CliSeAuNode by calling findSuccessor method
+		 * and change it to String
+		 */
 		int handler = chord.nodeMap.get(policyID).findSuccessor(eventID)
 				.getNodeID();
 		String responsible = String.valueOf(handler);
+		
+		//print the Event ID and the responsible CliSeAu ID on the console for debugging
 		System.out.println("Event ID: " + eventID
 				+ "\nResponsible CliSeAu ID: " + responsible);
 
@@ -101,7 +116,32 @@ public class DHTChordPolicy extends LocalPolicy {
 			return new DelegationLocPolReturn(responsible, dr);
 		}
 	}
-
+	
+	/**
+	 * Handles a request/reponse received from a remote CliSeAu unit.
+	 *
+	 * This method is supposed to be called by the Coordinator for every request
+	 * or response received from a remote CliSeAu unit.
+	 *  - If a request is received and a decision on the request can be made
+	 *    locally, then a delegation response of some subtype of
+	 *    DelegationReqResp (encapsulated in a DelegationLocPolReturn object)
+	 *    should be returned by this method. If a local decision cannot be made,
+	 *    the same or a modified request can be returned (also encapsulated in a
+	 *    DelegationLocPolReturn object).
+	 *  - If a response is received and is destined for the local CliSeAu unit,
+	 *    then an EnforcementDecision for the local enforcer should
+	 *    be returned. If the response is not for the local CliSeAu unit,
+	 *    then the same or a modified response should be forwarded by this method
+	 *    to another CliSeAu unit (encapsulated in a DelegationLocPolReturn
+	 *    object).
+	 *
+	 * This method may update the state of the local policy object during the
+	 * process of handling the request.
+	 *
+	 * @param dr The delegation request/response received from a remote party
+	 * @return The response to the coordinator
+	 * @exception IllegalArgumentException Can be thrown if dr is of the wrong subtype of DelegationReqResp
+	 */
 	@Override
 	public LocalPolicyResponse remoteRequest(DelegationReqResp dr)
 			throws IllegalArgumentException {
@@ -135,14 +175,16 @@ public class DHTChordPolicy extends LocalPolicy {
 		}
 	}
 
-	/*
+	/**
 	 * According to the current event one can decide whether the current HTTP
 	 * message should continue to be forwarded to the web store from the client
 	 * and vice versa
 	 * 
 	 * @param event The critical event for which a decision is requested.
-	 * 
 	 * @return The decision made to the coordinator
+	 * 
+	 * @author Xu,Yinhua
+	 * 
 	 */
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
 			throws IllegalArgumentException {

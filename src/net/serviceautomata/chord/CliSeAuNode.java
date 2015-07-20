@@ -15,9 +15,7 @@ package net.serviceautomata.chord;
  * on the ring, and in the meantime the finger table should be stabilized in
  * related to the current reality.
  * 
- * @author Xu, Yinhua	(Main)
- * @author Chen, Yiqun	(Cooperator)
- * @author Liu, Yi		(Cooperator)
+ * @author Xu, Yinhua
  */
 public class CliSeAuNode{
 	

@@ -2,24 +2,35 @@ package net.serviceautomata.instantiation;
 
 import net.serviceautomata.javatarget.CriticalEventFactory;
 
-
+/**
+ * This class construct a critical event factory which extract the token String
+ * and the payerID String from the given httpMessage and instantiate the related
+ * critical event
+ * 
+ * @author Liu, Yi	
+ * 
+ */
 public class SafeShoppingEventFactory implements CriticalEventFactory {
-	/*createEvent method take the httpMessage from SafeShoppingServiceAutomata
-	 * as parameter and extract the substring: token from it. The token is
-	 *  used to instantiate a SafeShoppingEvent class 
+	/**
+	 * The method createEvent extracts the token string and payerID string
+	 * from the given httpMessage. Then it returns a Event instantiation.
+	 * 
+	 * @param httpMessage
+	 * @return A SafeShoppingEvent instantiation.
 	 */
-	
 	
 	public static SafeShoppingEvent createEvent(String httpMessage){
 		String token = getToken(httpMessage);
 		String payerID = getPayerID(httpMessage);
-		String sessionID = getSessionID(httpMessage);
-		boolean paySucceed = getPaySucceed(httpMessage);
-		return new SafeShoppingEvent(token, payerID, sessionID, paySucceed );
+		return new SafeShoppingEvent(token, payerID);
 	}
 	
-	/*
-	 * getToken method is used to extract the token from the http message
+	/**
+	 * getToken method is used to extract the token from the http message.
+	 * It is called by the makeEvent method.
+	 * 
+	 * @param httpMessage
+	 * @return The token string.
 	 */
 	protected static String getToken(String httpMessage){
 		if(!httpMessage.isEmpty() && httpMessage.contains("token=") &&
@@ -32,8 +43,12 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 			return null;
 	}
 	
-	/*
-	 * getPayerID method is used to extract the payerID from the http message
+	/**
+	 * getPayerID method is used to extract the payerID from the http message.
+	 * It is called by the makeEvent method.
+	 * 
+	 * @param httpMessage
+	 * @return The payerID string.
 	 */
 	protected static String getPayerID(String httpMessage){
 		if(!httpMessage.isEmpty() &&
@@ -47,21 +62,4 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 			return null;
 	}
 	
-	//getSessionID method is used to extract the sessionID from the http message
-	protected static String getSessionID(String httpMessage){
-		if(!httpMessage.isEmpty() && httpMessage.contains("sessionid")){
-			String sessionid = httpMessage.substring(httpMessage.indexOf("sessionid"));
-			return(sessionid.substring(9));
-		}
-		else
-			return null;
-	}
-	
-	protected static boolean getPaySucceed(String httpMessage){
-		if(!httpMessage.isEmpty() && httpMessage.contains("success")){
-			return true;
-		}
-		else
-			return false;
-	}
 }

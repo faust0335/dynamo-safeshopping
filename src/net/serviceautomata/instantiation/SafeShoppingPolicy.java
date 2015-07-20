@@ -7,15 +7,22 @@ import net.serviceautomata.javacor.LocalPolicyResponse;
 
 import java.util.HashMap;
 
+/**
+ * This class construct a policy which can accept the SafeShoppingEvent
+ * as request and handle it locally. Finally gives a corresponding decision
+ * back to coordinator.
+ * 
+ * @author Liu, Yi	
+ * 
+ */
 public class SafeShoppingPolicy extends LocalPolicy {
 
-	/*
-	 * Store the pair of token and payerID for the transaction to the
-	 * corresponding sessionID
+	/**
+	 * Store the pair of token and payerID for the transaction
 	 */
 	private HashMap<String, String> transactionMap = new HashMap<String, String>();
 
-	/*
+	/**
 	 * Construct a local policy object.
 	 * 
 	 * @param identifier The identifier of the unit using the local policy
@@ -24,7 +31,7 @@ public class SafeShoppingPolicy extends LocalPolicy {
 		super(identifier);
 	}
 
-	/*
+	/**
 	 * Handles a request from the local interceptor component.
 	 * 
 	 * This method is supposed to be called by the Coordinator for every local
@@ -47,21 +54,25 @@ public class SafeShoppingPolicy extends LocalPolicy {
 			throws IllegalArgumentException {
 		return makeDecision((SafeShoppingEvent) event);
 	}
-
+	/**
+	 * Here we only concern the local request, so we did not implement 
+	 * the method remoteRequest.
+	 */
 	@Override
 	public LocalPolicyResponse remoteRequest(DelegationReqResp dr)
 			throws IllegalArgumentException {
 		return null;
 	}
 
-	/*
+	/**
 	 * According to the current event one can decide whether the current HTTP
 	 * message should continue to be forwarded to the web store from the client
 	 * and vice versa
 	 * 
 	 * @param event The critical event for which a decision is requested.
-	 * 
 	 * @return The decision made to the coordinator
+	 * 
+	 * @author Xu,Yinhua
 	 */
 	protected SafeShoppingDecision makeDecision(SafeShoppingEvent event)
 			throws IllegalArgumentException {

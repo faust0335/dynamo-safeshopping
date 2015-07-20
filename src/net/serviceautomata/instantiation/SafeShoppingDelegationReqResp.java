@@ -1,17 +1,30 @@
 package net.serviceautomata.instantiation;
 
 import net.serviceautomata.javacor.DelegationReqResp;
-
+/**
+ * This class implements the interface DelegationReqResp and acts as a parent class
+ * of SafeShoppingDelegationRequest and SafeShoppingDelegationResponse.
+ * It handles the sourceID and the destinationID of the delegation req/resp. 
+ * 
+ * @author Liu, Yi
+ * 	
+ */
 public class SafeShoppingDelegationReqResp implements DelegationReqResp {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
-	//The ID of the CliSeAu unit sending this request / response
+	/**
+	 * The ID of the CliSeAu unit sending this request / response
+	 */
 	public String sourceID;
-	//The ID of the CliSeAu unit meant to be receiving this request / response
+	/**
+	 * The ID of the CliSeAu unit meant to be receiving this request / response
+	 */
 	public String destID;
-
+	/**
+	 * Construct of this class
+	 * @param sourceID
+	 * @param destID
+	 */
 	protected SafeShoppingDelegationReqResp(final String sourceID, final String destID) {
 		this.sourceID = sourceID;
 		this.destID   = destID;

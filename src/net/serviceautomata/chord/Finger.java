@@ -9,9 +9,7 @@ package net.serviceautomata.chord;
  * This class will be instantiated in class FingerTable as the components of
  * the finger table.
  * 
- * @author Xu, Yinhua	(Main)
- * @author Chen, Yiqun	(Cooperator)
- * @author Liu, Yi		(Cooperator)
+ * @author Xu, Yinhua	
  */
 public class Finger {
 	
