@@ -135,7 +135,7 @@ public class DHTChordPolicy extends LocalPolicy {
 		}
 	}
 
-	/*
+	/**
 	 * According to the current event one can decide whether the current HTTP
 	 * message should continue to be forwarded to the web store from the client
 	 * and vice versa
