@@ -12,9 +12,7 @@ import java.util.HashMap;
  * status of the Chord ring. With this class we can have an overview of the Chord
  * ring and may create more CliSeAu nodes to join into the ring.
  * 
- * @author Xu, Yinhua	(Main)
- * @author Chen, Yiqun	(Cooperator)
- * @author Liu, Yi		(Cooperator)
+ * @author Xu, Yinhua	
  */
 public class Chord {
 

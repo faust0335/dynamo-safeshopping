@@ -10,9 +10,7 @@ package net.serviceautomata.chord;
  * reference field. Meanwhile, class Finger is instantiated in this class as an
  * array, which stores all the necessary Finger elements.
  * 
- * @author Xu, Yinhua	(Main)
- * @author Chen, Yiqun	(Cooperator)
- * @author Liu, Yi		(Cooperator)
+ * @author Xu, Yinhua	
  */
 public class FingerTable {
 	
