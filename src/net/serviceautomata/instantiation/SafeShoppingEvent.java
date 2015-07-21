@@ -2,6 +2,13 @@ package net.serviceautomata.instantiation;
 
 import net.serviceautomata.javacor.CriticalEvent;
 
+/**
+ * This class construct a critical event according to the HTTP message
+ * with two fields: token and payerID
+ * 
+ * @author Liu, Yi
+ *
+ */
 public class SafeShoppingEvent implements CriticalEvent{
 	/**
 	 * Generated serial ID
@@ -23,7 +30,6 @@ public class SafeShoppingEvent implements CriticalEvent{
 	 * @return				The new event extracted from the HTTP message
 	 */
 	public SafeShoppingEvent(String token, String payerID){
-		
 		this.token = token;
 		this.payerID = payerID;
 	}

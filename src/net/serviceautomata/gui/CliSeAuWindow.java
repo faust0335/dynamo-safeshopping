@@ -15,8 +15,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 /**
- * 
- * This class initiates a graphical user interface to manipulate the CliSeAu
+ * This class initiates a graphical user interface to manipulate multiple CliSeAu
  * nodes
  * 
  * @author Xu, Yinhua
@@ -44,24 +43,65 @@ public class CliSeAuWindow {
 class CliSeAuFrame extends JFrame {
 
 	/**
-	 * 
+	 * Generated serial ID
 	 */
 	private static final long serialVersionUID = 4808345624015235803L;
+	/**
+	 * default x-coordinate of the frame location
+	 */
 	public static final int DEFAULT_FRAME_ABSCISSA = 450;
+	/**
+	 * default y-coordinate of the frame location
+	 */
 	public static final int DEFAULT_FRAME_ORDINATE = 350;
+	/**
+	 * default width of the frame
+	 */
 	public static final int DEFAULT_FRAME_WIDTH = 320;
+	/**
+	 * default height of the frame
+	 */
 	public static final int DEFAULT_FRAME_HEIGHT = 200;
+	/**
+	 * default inside horizontal gap of the frame
+	 */
 	public static final int DEFAULT_HORIZONTAL_GAP = 10;
+	/**
+	 * default inside vertical gap of the frame
+	 */
 	public static final int DEFAULT_VERTICAL_GAP = 10;
-
+	/**
+	 * the main panel composed of grids of labels, buttons and text fields
+	 */
 	private JPanel panel;
+	/**
+	 * the label of text description of the task in "address" text field
+	 */
 	private JLabel addressLabel;
+	/**
+	 * the label of text description of the task in "identifier" text field
+	 */
 	private JLabel identifierLabel;
+	/**
+	 * the text field of "address"
+	 */
 	private JTextField displayAddress;
+	/**
+	 * the text field of "identifier"
+	 */
 	private JTextField displayIdentifier;
+	/**
+	 * the button initiating the first CliSeAu service with an ICAP server
+	 */
 	private JButton initCliSeAu;
+	/**
+	 * the button adding new CliSeAu node(s)
+	 */
 	private JButton addCliSeAu;
-
+	
+	/**
+	 * The constructor to initialize a frame with a panel
+	 */
 	public CliSeAuFrame() {
 		setTitle("Add CliSeAu Node");
 		setBounds(DEFAULT_FRAME_ABSCISSA, DEFAULT_FRAME_ORDINATE,
@@ -74,17 +114,14 @@ class CliSeAuFrame extends JFrame {
 	}
 
 	/**
-	 * A panel with text fields of both node address and node identifier, and
-	 * the buttons to click to initialize a CliSeAu service and add CliSeAu
+	 * A panel of an 3*2 grid arrangement with text fields of both node address
+	 * and node identifier, and the buttons to click to initialize a CliSeAu service and add CliSeAu
 	 * nodes
-	 * 
-	 * @author Xu, Yinhua
-	 *
 	 */
 	class CliSeAuPanel extends JPanel {
 
 		/**
-		 * 
+		 * Generated serial ID
 		 */
 		private static final long serialVersionUID = -5849809210385211583L;
 

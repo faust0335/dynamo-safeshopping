@@ -2,18 +2,23 @@ package net.serviceautomata.instantiation;
 
 import net.serviceautomata.javatarget.CriticalEventFactory;
 
-
+/**
+ * This class construct a critical event factory which extract the token String
+ * and the payerID String from the given httpMessage and instantiate the related
+ * critical event
+ * 
+ * @author Liu, Yi	
+ * 
+ */
 public class SafeShoppingEventFactory implements CriticalEventFactory {
-	
+
 	/**
-	 * createEvent method take the httpMessage from SafeShoppingServiceAutomata
-	 * as parameter and extract the substring: token from it. The token is
-	 * used to instantiate a SafeShoppingEvent class 
-	 *
-	 * @param httpMessage	HTTP message in the type of string
-	 * @return				The new SafeShoppingEvent object
+	 * The method createEvent extracts the token string and payerID string
+	 * from the given httpMessage. Then it returns a Event instantiation.
+	 * 
+	 * @param httpMessage
+	 * @return A SafeShoppingEvent instantiation.
 	 */
-	 
 	public static SafeShoppingEvent createEvent(String httpMessage){
 		String token = getToken(httpMessage);
 		String payerID = getPayerID(httpMessage);
@@ -22,9 +27,10 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	
 	/**
 	 * getToken method is used to extract the token from the HTTP message
+	 * It is called by the makeEvent method.
 	 * 
-	 * @param httpMessage HTTP message in the type of string
-	 * @return the string of the token
+	 * @param httpMessage	HTTP message in the type of string
+	 * @return				the string of the token
 	 */
 	protected static String getToken(String httpMessage){
 		if(!httpMessage.isEmpty() && httpMessage.contains("token=") &&
@@ -38,7 +44,8 @@ public class SafeShoppingEventFactory implements CriticalEventFactory {
 	}
 	
 	/**
-	 * getPayerID method is used to extract the payerID from the HTTP message
+	 * getPayerID method is used to extract the payerID from the HTTP message.
+	 * It is called by the makeEvent method.
 	 * 
 	 * @param httpMessage	HTTP message in the type of string
 	 * @return 				The string of the payer identifier
