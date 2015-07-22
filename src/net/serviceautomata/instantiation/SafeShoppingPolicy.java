@@ -26,6 +26,7 @@ public class SafeShoppingPolicy extends LocalPolicy {
 	 * Construct a local policy object.
 	 * 
 	 * @param identifier The identifier of the unit using the local policy
+	 *
 	 */
 	public SafeShoppingPolicy(final String identifier) {
 		super(identifier);

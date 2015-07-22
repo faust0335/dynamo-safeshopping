@@ -18,8 +18,9 @@ public class SafeShoppingDelegationRequest extends SafeShoppingDelegationReqResp
 	/**
 	 * Constructor of this class
 	 * @param se           critical event
-	 * @param sourceID
-	 * @param destID
+	 * @param sourceID	   the initiator of the delegation request
+	 * @param destID	   the target of the delegation request
+	 * 
 	 */
 	public SafeShoppingDelegationRequest(final SafeShoppingEvent se, final String sourceID, final String destID) {
 		super(sourceID, destID);
